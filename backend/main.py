@@ -6,9 +6,11 @@ import sqlite3
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from backend.app.community_api import router as community_router
+from backend.app.assessment_api import router as assessment_router
 
 app = FastAPI(title="SALT-LINE API", version="0.2.0")
 app.include_router(community_router)
+app.include_router(assessment_router)
 
 # Always use the database beside this Python file.
 DB_NAME = Path(__file__).resolve().parent / "saltline.db"
