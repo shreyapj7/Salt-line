@@ -9,7 +9,6 @@ ELEVATION_FIELDS = (
     "mean_elevation_msl_m",
     "distance_to_coast_km",
     "topographic_class",
-    "coastal_salinity_susceptibility",
 )
 
 RAINFALL_FIELDS = (
@@ -240,8 +239,8 @@ def extract_geospatial_evidence(assessment):
             **elevation,
             "values": elevation_numeric,
             "topographic_class": elevation_values.get("topographic_class"),
-            "source_classification": _finite_number(
-                elevation_properties.get("coastal_salinity_susceptibility")
+            "source_classification": elevation_properties.get(
+                "coastal_salinity_susceptibility"
             ),
         },
         "rainfall": {

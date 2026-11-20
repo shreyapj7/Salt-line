@@ -4,6 +4,9 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from intelligence.explanation_engine import explain_assessment
 
+from intelligence.geospatial_adapter import load_geospatial_assessments
+from intelligence.evidence_inventory import build_evidence_inventory
+
 from backend.app.geospatial_loader import (
     get_location_context,
     list_locations,
@@ -83,3 +86,26 @@ def create_assessment(location_id: str, request: AssessmentRequest):
         "geospatial_context": context,
         "notice": "Scores are provisional prototype outputs, not validated groundwater diagnoses.",
     }
+
+@router.get("/assessments/pilot")
+def pilot_assessment():
+    """
+    Return the consolidated evidence inventory and adaptive
+    monitoring recommendations for the coastal pilot.
+    """
+    try:
+        assessments = load_geospatial_assessments()
+
+        inventory = build_evidence_inventory(assessments)
+
+        return {
+            **inventory,
+            "notice": (
+                "This is an evidence-coverage and monitoring-needs "
+                "assessment. It does not confirm seawater intrusion "
+                "or calculate a validated probability of salinity."
+            ),
+        }
+
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc))

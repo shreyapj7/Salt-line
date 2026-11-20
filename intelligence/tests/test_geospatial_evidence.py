@@ -31,7 +31,7 @@ def make_assessment():
                         "mean_elevation_msl_m": 3.5,
                         "distance_to_coast_km": 0.38,
                         "topographic_class": "low_lying",
-                        "coastal_salinity_susceptibility": 0.7,
+                        "coastal_salinity_susceptibility": "CRITICAL_LOW_ELEVATION",
                         "source": "SRTM",
                     },
                 }],
@@ -72,7 +72,7 @@ def test_extracts_location_and_head():
     assert result["groundwater_head"]["operational_eligible"] is False
     assert result["groundwater_head"]["source_verified"] is True
     assert result["groundwater_head"]["measurement_available"] is True
-    assert result["groundwater_head"]["freshness_status"] == "not_assessed"   
+    assert result["groundwater_head"]["freshness_status"] == "not_assessed"
     assert result["groundwater_head"]["trend_available"] is False
 
 
@@ -172,7 +172,7 @@ def test_preserves_elevation_grid_and_classification():
     result = extract_geospatial_evidence(make_assessment())
 
     assert result["elevation"]["grid_ids"] == ["elev_cell_036"]
-    assert result["elevation"]["source_classification"] == 0.7
+    assert result["elevation"]["source_classification"] == "CRITICAL_LOW_ELEVATION"
 
 
 def test_preserves_rainfall_grid_and_observation_period():
@@ -194,3 +194,22 @@ def test_ambiguous_layer_preserves_grid_ids():
     assert result["rainfall"]["grid_ids"] == [
         "rain_cell_007", "rain_cell_007"
     ]
+
+def test_preserves_elevation_classification_as_string():
+    result = extract_geospatial_evidence(make_assessment())
+
+    assert result["elevation"]["source_classification"] == "CRITICAL_LOW_ELEVATION"
+    assert result["elevation"]["values"]["mean_elevation_msl_m"] == 3.5
+    assert result["elevation"]["values"]["distance_to_coast_km"] == 0.38
+    assert "coastal_salinity_susceptibility" not in result["elevation"]["values"]
+
+
+def test_moderate_elevation_classification_preserved():
+    assessment = make_assessment()
+    assessment["gis"]["elevation"]["matches"][0]["properties"][
+        "coastal_salinity_susceptibility"
+    ] = "MODERATE_ELEVATION"
+
+    result = extract_geospatial_evidence(assessment)
+
+    assert result["elevation"]["source_classification"] == "MODERATE_ELEVATION"
