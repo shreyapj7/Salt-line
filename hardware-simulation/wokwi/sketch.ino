@@ -62,13 +62,7 @@ void connectWiFi() {
 // Temporary testing endpoint.
 // Do not send real or private well data here.
 const char* SERVER_URL =
-  "https://card-thoroughly-okay-dressing.trycloudflare.com/api/v1/sensor-readings";
-
-const int SAMPLE_COUNT = 20;
-const int SAMPLE_DELAY_MS = 10;
-const int REPORT_INTERVAL_MS = 5000;
-const int WIFI_TIMEOUT_MS = 30000;
-
+ const char* SERVER_URL = "https://node-putting-deferred-weights.trycloudflare.com/api/v1/sensor-readings";
 // Average ADC readings
 int readAveragedADC(int pin) {
   long total = 0;

@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from backend.app.community_api import router as community_router
 from backend.app.assessment_api import router as assessment_router
+from intelligence.sensor_adapter import evaluate_sensor_reading
 
 app = FastAPI(title="SALT-LINE API", version="0.2.0")
 app.include_router(community_router)
@@ -98,6 +99,7 @@ def home():
     }
 
 
+
 @app.post("/api/v1/sensor-readings")
 def receive_sensor_data(data: SensorReading):
 
@@ -106,16 +108,10 @@ def receive_sensor_data(data: SensorReading):
     with sqlite3.connect(DB_NAME) as conn:
         cursor = conn.execute("""
             INSERT INTO sensor_readings (
-                device_id,
-                uptime_ms,
-                tds_raw_avg,
-                water_level_raw_avg,
-                tds_voltage_est_v,
-                water_voltage_est_v,
-                temperature_c,
-                temperature_valid,
-                input_warning,
-                source,
+                device_id, uptime_ms, tds_raw_avg,
+                water_level_raw_avg, tds_voltage_est_v,
+                water_voltage_est_v, temperature_c,
+                temperature_valid, input_warning, source,
                 received_at
             )
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -135,13 +131,27 @@ def receive_sensor_data(data: SensorReading):
 
         reading_id = cursor.lastrowid
 
+    stored_reading = {
+        "id": reading_id,
+        "device_id": data.device_id,
+        "tds_raw_avg": data.tds_raw_avg,
+        "water_level_raw_avg": data.water_level_raw_avg,
+        "source": data.source,
+        "received_at": received_at,
+        "input_warning": data.input_warning
+    }
+
+    validation = evaluate_sensor_reading(stored_reading)
+
     return {
         "success": True,
         "message": "Sensor reading stored",
         "reading_id": reading_id,
         "device_id": data.device_id,
-        "received_at": received_at
+        "received_at": received_at,
+        "validation": validation
     }
+
 
 
 @app.get("/api/v1/sensor-readings")
@@ -160,16 +170,21 @@ def get_sensor_readings():
 
     for row in rows:
         reading = dict(row)
+
         reading["input_warning"] = bool(reading["input_warning"])
         reading["temperature_valid"] = bool(
             reading["temperature_valid"]
         )
+
+        reading["validation"] = evaluate_sensor_reading(reading)
+
         readings.append(reading)
 
     return {
         "count": len(readings),
         "readings": readings
     }
+
 
 
 @app.get("/api/v1/sensor-readings/{reading_id}")
@@ -190,9 +205,12 @@ def get_sensor_reading(reading_id: int):
         )
 
     reading = dict(row)
+
     reading["input_warning"] = bool(reading["input_warning"])
     reading["temperature_valid"] = bool(
         reading["temperature_valid"]
     )
+
+    reading["validation"] = evaluate_sensor_reading(reading)
 
     return reading
