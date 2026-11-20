@@ -1,0 +1,59 @@
+{
+  "layer_title": "NDMI (vegetation moisture indicator)",
+  "neutral_label": "Vegetation Moisture Indicator (NDMI)",
+  "prohibited_labels": [
+    "salinity layer",
+    "saltwater intrusion map",
+    "underground salinity"
+  ],
+  "data_file": "geospatial/processed/ndmi_pilot_grid.geojson",
+  "geometry_type": "GeoJSON Polygon Grid",
+  "total_cells": 130,
+  "leaflet_integration": {
+    "recommended_view": {
+      "center": [
+        13.33,
+        74.74
+      ],
+      "zoom": 11
+    },
+    "bounds": [
+      [
+        13.105,
+        74.689
+      ],
+      [
+        13.485,
+        74.821
+      ]
+    ],
+    "style": {
+      "weight": 1,
+      "color": "#666666",
+      "opacity": 0.6,
+      "fillOpacity": 0.5
+    },
+    "legend": [
+      {
+        "label": "Low Moisture / Sandy Fringe (NDMI < 0.10)",
+        "color": "#fed98e"
+      },
+      {
+        "label": "Moderate Canopy Moisture (0.10 <= NDMI <= 0.30)",
+        "color": "#a1d99b"
+      },
+      {
+        "label": "High Canopy Moisture / Wetland (NDMI > 0.30)",
+        "color": "#238b45"
+      }
+    ]
+  },
+  "provenance": {
+    "source": "Copernicus Sentinel-2B MSI (Level-2A Surface Reflectance)",
+    "date": "2026-03-12",
+    "tile": "T43PBT",
+    "resolution": "20 m resampled to ~1.5 km reporting grid",
+    "cloud_gaps": "None (<1.5% scene cloud, 0% in pilot corridor)"
+  },
+  "guardrails": "Sentinel-2 MSI observes top-of-canopy water content and surface vegetation vigor. It does NOT penetrate the subsurface or directly measure groundwater salinity. Moisture variation may stem from soil type, irrigation, plant phenology, or root-zone osmotic stress."
+}
