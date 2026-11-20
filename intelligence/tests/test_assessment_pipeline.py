@@ -255,3 +255,130 @@ def test_pipeline_requires_ec_season_key():
             **inputs,
             ec_measurement=make_ec_measurement(),
         )
+
+
+def make_chloride_measurement():
+    return {
+        "location_id": "LOC_001",
+        "value": 120,
+        "unit": "mg/L",
+        "source_type": "laboratory",
+        "timestamp": "2026-11-20T10:00:00+05:30",
+        "calibration_status": "verified",
+        "method": "laboratory_test",
+    }
+
+
+def make_chloride_history():
+    return [
+        {
+            "location_id": "LOC_001",
+            "season_key": "post_monsoon",
+            "chloride_mg_l": value,
+            "source_type": "laboratory",
+            "calibration_status": "verified",
+            "timestamp": (
+                f"2025-11-{i:02d}T10:00:00+05:30"
+            ),
+        }
+        for i, value in enumerate([80, 82, 81, 83, 84], start=1)
+    ]
+
+
+def test_pipeline_integrates_chloride():
+    result = assess_location(
+        **complete_inputs(),
+        chloride_measurement=make_chloride_measurement(),
+        chloride_historical_observations=make_chloride_history(),
+        chloride_season_key="post_monsoon",
+    )
+
+    evidence = result["chloride_evidence"]
+
+    assert evidence["assessment_status"] == "assessed"
+    assert evidence["anomaly"]["direction"] == "increased"
+
+    # Existing risk calculation must remain unchanged.
+    assert result["risk"]["score"] == 64.0
+
+
+def test_pipeline_without_chloride():
+    result = assess_location(**complete_inputs())
+
+    assert result["chloride_evidence"]["assessment_status"] == (
+        "not_provided"
+    )
+
+
+def test_pipeline_simulated_chloride():
+    result = assess_location(
+        **complete_inputs(),
+        is_simulated=True,
+        chloride_measurement=make_chloride_measurement(),
+        chloride_historical_observations=make_chloride_history(),
+        chloride_season_key="post_monsoon",
+    )
+
+    assert result["chloride_evidence"]["assessment_status"] == (
+        "simulated_only"
+    )
+    assert result["chloride_evidence"]["operationally_eligible"] is False
+
+
+def test_pipeline_requires_chloride_season():
+    with pytest.raises(ValueError):
+        assess_location(
+            **complete_inputs(),
+            chloride_measurement=make_chloride_measurement(),
+        )
+
+def make_tds_measurement(method="direct_measurement"):
+    return {
+        "location_id": "LOC_001",
+        "value": 450,
+        "unit": "mg/L",
+        "source_type": "laboratory",
+        "method": method,
+        "timestamp": "2026-11-20T10:00:00+05:30",
+        "calibration_status": "verified",
+        "ec_source_id": "EC_001" if method == "ec_estimate" else None,
+    }
+
+
+def test_pipeline_integrates_tds():
+    result = assess_location(
+        **complete_inputs(),
+        tds_measurement=make_tds_measurement(),
+    )
+
+    assert result["tds_evidence"]["assessment_status"] == "measured"
+    assert result["tds_evidence"]["operationally_eligible"] is True
+    assert result["risk"]["score"] == 64.0
+
+
+def test_pipeline_identifies_ec_derived_tds():
+    result = assess_location(
+        **complete_inputs(),
+        tds_measurement=make_tds_measurement("ec_estimate"),
+    )
+
+    evidence = result["tds_evidence"]
+
+    assert evidence["assessment_status"] == "derived_estimate"
+    assert evidence["measurement"]["independent_evidence"] is False
+
+
+def test_pipeline_blocks_simulated_tds():
+    result = assess_location(
+        **complete_inputs(),
+        is_simulated=True,
+        tds_measurement=make_tds_measurement(),
+    )
+
+    assert result["tds_evidence"]["assessment_status"] == "simulated_only"
+
+
+def test_pipeline_without_tds():
+    result = assess_location(**complete_inputs())
+
+    assert result["tds_evidence"]["assessment_status"] == "not_provided"

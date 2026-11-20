@@ -1,4 +1,6 @@
 from intelligence.indicators.ec_assessment import assess_ec_evidence
+from intelligence.indicators.chloride import assess_chloride_evidence
+from intelligence.indicators.tds import assess_tds_evidence
 from typing import Optional
 
 from intelligence.risk_engine import calculate_risk
@@ -142,6 +144,11 @@ def assess_location(
     ec_historical_observations: Optional[list[dict]] = None,
     ec_season_key: Optional[str] = None,
     ec_minimum_observations: int = 5,
+    chloride_measurement: Optional[dict] = None,
+    chloride_historical_observations: Optional[list[dict]] = None,
+    chloride_season_key: Optional[str] = None,
+    chloride_minimum_observations: int = 5,
+    tds_measurement: Optional[dict] = None,
 ) -> dict:
     """
     Run the complete SALT-LINE intelligence pipeline for one location.
@@ -261,6 +268,53 @@ def assess_location(
             force_simulated=is_simulated,
         )
 
+        # Chloride remains a separate chemical evidence stream.
+
+    if chloride_measurement is None:
+        chloride_evidence = {
+            "evidence_type": "chloride",
+            "assessment_status": "not_provided",
+            "operationally_eligible": False,
+            "is_simulated": is_simulated,
+            "reason": "No chloride measurement was supplied.",
+        }
+
+    else:
+        if chloride_season_key is None:
+            raise ValueError(
+                "chloride_season_key is required when "
+                "chloride_measurement is supplied"
+            )
+
+        chloride_evidence = assess_chloride_evidence(
+            current_measurement=chloride_measurement,
+            historical_observations=(
+                chloride_historical_observations
+                if chloride_historical_observations is not None
+                else []
+            ),
+            season_key=chloride_season_key,
+            minimum_observations=chloride_minimum_observations,
+            force_simulated=is_simulated,
+        )
+
+        # TDS evidence is separate. EC-derived TDS is not
+    # treated as independent evidence from EC.
+
+    if tds_measurement is None:
+        tds_evidence = {
+            "evidence_type": "tds",
+            "assessment_status": "not_provided",
+            "operationally_eligible": False,
+            "is_simulated": is_simulated,
+            "reason": "No TDS measurement was supplied.",
+        }
+    else:
+        tds_evidence = assess_tds_evidence(
+            measurement=tds_measurement,
+            force_simulated=is_simulated,
+        )
+
     return {
         "location_id": location_id,
         "assessment_mode": (
@@ -271,4 +325,6 @@ def assess_location(
         "monitoring": monitoring,
         "recommendation": recommendation,
         "salinity_evidence": salinity_evidence,
+        "chloride_evidence": chloride_evidence,
+        "tds_evidence": tds_evidence,
     }
