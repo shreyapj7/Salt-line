@@ -168,11 +168,16 @@ def validate_geojson_layer(data, layer_name="unknown"):
         "invalid_features": invalid_count,
         "quality_flags": flags,
         "features": results,
-        "eligible_for_demo": True,
+        "eligible_for_demo": (
+            status == "valid"
+            and invalid_count == 0
+            and not flags
+        ),
         "eligible_for_operational_assessment": (
             status == "valid"
-            and not any(item["is_simulated"] for item in results)
+            and invalid_count == 0
             and not flags
+            and not any(item["is_simulated"] for item in results)
         ),
     }
 
