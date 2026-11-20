@@ -148,7 +148,7 @@ export default function CommunityReportsPage({ live, onOpenLocation }: Community
           actions={
             <div className="flex flex-wrap items-center gap-2">
               <SourceLabel live={live.reportsLive} />
-              <button type="button" onClick={() => setFormOpen(true)} className="inline-flex items-center gap-2 rounded-md bg-forest-base px-4 py-2.5 text-xs font-semibold text-white hover:bg-forest-bright">
+              <button type="button" onClick={() => setFormOpen(true)} className="inline-flex items-center gap-2 rounded-md bg-teal-300 px-4 py-2.5 text-xs font-semibold text-white hover:bg-teal-500">
                 <Plus size={14} /> {t('complaints.button')}
               </button>
             </div>
@@ -429,7 +429,7 @@ export default function CommunityReportsPage({ live, onOpenLocation }: Community
                 <button type="button" onClick={() => setFormOpen(false)} className="rounded-md border border-earth-gold px-4 py-2.5 text-xs font-semibold text-ink-300 hover:bg-ink-800">
                   {t('common.cancel')}
                 </button>
-                <button type="submit" disabled={formBusy || live.locations.length === 0} className="rounded-md bg-forest-base px-4 py-2.5 text-xs font-semibold text-white hover:bg-forest-bright disabled:cursor-not-allowed disabled:opacity-60">
+                <button type="submit" disabled={formBusy || live.locations.length === 0} className="rounded-md bg-teal-300 px-4 py-2.5 text-xs font-semibold text-white hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-60">
                   {formBusy ? t('common.submitting') : t('complaints.submitForVerification')}
                 </button>
               </div>
@@ -451,7 +451,7 @@ function formatSubmittedAt(value: string | undefined, lang: string, t: (key: str
   const date = new Date(value);
   return Number.isNaN(date.getTime())
     ? t('common.invalidTimestamp')
-    : date.toLocaleString(lang === 'kn' ? 'kn-IN' : 'en-IN', {
+    : date.toLocaleString(lang === 'kn' ? 'kn-IN' : lang === 'tul' ? 'tcy-IN' : 'en-IN', {
         day: '2-digit',
         month: 'short',
         year: 'numeric',

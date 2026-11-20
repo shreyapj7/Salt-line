@@ -43,7 +43,7 @@ function formatTime(value: string, lang: string, t: (key: string) => string): st
   const date = new Date(value);
   return Number.isNaN(date.getTime())
     ? t('common.timestampUnavailable')
-    : date.toLocaleString(lang === 'kn' ? 'kn-IN' : 'en-IN', {
+    : date.toLocaleString(lang === 'kn' ? 'kn-IN' : lang === 'tul' ? 'tcy-IN' : 'en-IN', {
         day: '2-digit',
         month: 'short',
         year: 'numeric',
@@ -218,8 +218,6 @@ export default function EvidenceActivityPage({ live, onOpenLocation }: EvidenceA
                 title={t('evidence.authorityVerified')}
                 count={authorityCount}
                 detail={t('evidence.authorityDetail')}
-                kind="live"
-                t={t}
               />
               <ProvenanceItem
                 title={t('evidence.communityReported')}
@@ -228,22 +226,16 @@ export default function EvidenceActivityPage({ live, onOpenLocation }: EvidenceA
                   verified: live.reports.filter((report) => report.verification === 'verified').length,
                   unverified: live.reports.filter((report) => report.verification === 'unverified').length,
                 })}
-                kind="mixed"
-                t={t}
               />
               <ProvenanceItem
                 title={t('evidence.sensorRecords')}
                 count={live.sensors.length}
                 detail={t('evidence.sensorCount', { count: live.sensors.filter((sensor) => sensor.latest).length })}
-                kind="live"
-                t={t}
               />
               <ProvenanceItem
                 title={t('evidence.demoRecords')}
                 count={demoRecordsCount + TIMELINE_EVENTS.length}
                 detail={t('evidence.demoDetail')}
-                kind="demo"
-                t={t}
               />
             </div>
           </PageCard>
@@ -404,14 +396,10 @@ function ProvenanceItem({
   title,
   count,
   detail,
-  kind,
-  t,
 }: {
   title: string;
   count: number;
   detail: string;
-  kind: 'live' | 'demo' | 'mixed';
-  t: (key: string) => string;
 }) {
   return (
     <div className="flex items-start justify-between gap-3 p-4">
@@ -420,10 +408,6 @@ function ProvenanceItem({
         <p className="mt-1 text-[9px] leading-relaxed text-ink-500">{detail}</p>
       </div>
       <span className="font-mono text-lg text-ink-100">{count}</span>
-      <StatusBadge
-        label={kind === 'mixed' ? t('source.mixedSources') : kind === 'live' ? t('source.live') : t('evidence.demoSynthetic')}
-        kind={kind}
-      />
     </div>
   );
 }

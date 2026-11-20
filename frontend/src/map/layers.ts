@@ -34,8 +34,8 @@ export const LAYERS: LayerMeta[] = [
     whatKey: 'what.boundary',
     status: 'available',
     kind: 'boundary',
-    legendLow: '#4D9B89',
-    legendHigh: '#315D50',
+    legendLow: 'var(--color-ocean-medium)',
+    legendHigh: 'var(--color-ocean-deep)',
   },
   {
     id: 'stations',
@@ -45,8 +45,8 @@ export const LAYERS: LayerMeta[] = [
     whatKey: 'what.stations',
     status: 'available',
     kind: 'markers',
-    legendLow: '#4D9B89',
-    legendHigh: '#B4483C',
+    legendLow: 'var(--color-forest)',
+    legendHigh: 'var(--color-risk-high)',
   },
   {
     id: 'community',
@@ -56,8 +56,8 @@ export const LAYERS: LayerMeta[] = [
     whatKey: 'what.community',
     status: 'available',
     kind: 'markers',
-    legendLow: '#4D9B89',
-    legendHigh: '#A75030',
+    legendLow: 'var(--color-ocean-medium)',
+    legendHigh: 'var(--color-earth-medium)',
   },
   {
     id: 'rainfall',
@@ -67,8 +67,8 @@ export const LAYERS: LayerMeta[] = [
     whatKey: 'what.rainfall',
     status: 'demo',
     kind: 'overlay',
-    legendLow: '#4D9B89',
-    legendHigh: '#B4483C',
+    legendLow: 'var(--color-ocean-medium)',
+    legendHigh: 'var(--color-risk-high)',
   },
   {
     id: 'elevation',
@@ -78,8 +78,8 @@ export const LAYERS: LayerMeta[] = [
     whatKey: 'what.elevation',
     status: 'demo',
     kind: 'overlay',
-    legendLow: '#B4483C',
-    legendHigh: '#4D9B89',
+    legendLow: 'var(--color-risk-high)',
+    legendHigh: 'var(--color-forest)',
   },
   {
     id: 'coastDist',
@@ -89,8 +89,8 @@ export const LAYERS: LayerMeta[] = [
     whatKey: 'what.coastDist',
     status: 'demo',
     kind: 'overlay',
-    legendLow: '#A75030',
-    legendHigh: '#4D9B89',
+    legendLow: 'var(--color-earth-medium)',
+    legendHigh: 'var(--color-forest)',
   },
   {
     id: 'ndmi',
@@ -100,8 +100,8 @@ export const LAYERS: LayerMeta[] = [
     whatKey: 'what.ndmi',
     status: 'simulated',
     kind: 'overlay',
-    legendLow: '#A75030',
-    legendHigh: '#4D9B89',
+    legendLow: 'var(--color-earth-medium)',
+    legendHigh: 'var(--color-forest)',
   },
   {
     id: 'vulnerability',
@@ -111,8 +111,8 @@ export const LAYERS: LayerMeta[] = [
     whatKey: 'what.vulnerability',
     status: 'demo',
     kind: 'overlay',
-    legendLow: '#4D9B89',
-    legendHigh: '#B4483C',
+    legendLow: 'var(--color-ocean-medium)',
+    legendHigh: 'var(--color-risk-high)',
   },
   {
     id: 'priority',
@@ -122,8 +122,8 @@ export const LAYERS: LayerMeta[] = [
     whatKey: 'what.priority',
     status: 'provisional',
     kind: 'overlay',
-    legendLow: '#4D9B89',
-    legendHigh: '#B4483C',
+    legendLow: 'var(--color-ocean-medium)',
+    legendHigh: 'var(--color-risk-high)',
   },
 ];
 

@@ -2,6 +2,7 @@ import {
   AlertTriangle,
   Droplets,
   Gauge,
+  Info,
   MapPin,
   Radio,
   Cpu,
@@ -75,19 +76,13 @@ export default function AnalyticsPanel({ live, onCollapse }: AnalyticsPanelProps
   const heads = locations.map((l) => l.gwHeadM).filter((v): v is number => v !== undefined);
 
   return (
-    <aside className="w-[276px] h-full shrink-0 border-r border-ink-700 bg-ink-850 overflow-y-auto flex flex-col">
+    <aside className="flex h-full w-[min(320px,calc(100vw-48px))] max-w-[360px] shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-earth-gold/60 bg-ink-850 xl:w-[320px]">
       <div className="px-3 py-2 border-b border-ink-700 bg-ink-900/60 flex items-center justify-between gap-2">
         <h2 className="text-[11px] font-semibold tracking-wider text-ink-200 uppercase truncate">
           {t('panel.left.title')}
         </h2>
         <div className="flex items-center gap-1.5">
-          <span
-            className={`px-1.5 py-px rounded-sm border text-[9px] tracking-wide ${
-              live.locationsLive
-                ? 'border-forest-light/60 text-forest-bright bg-forest-deep/40'
-                : 'border-earth-clay/60 text-earth-sand bg-earth-clay/10'
-            }`}
-          >
+          <span className="text-[10px] text-ink-500">
             {live.locationsLive ? t('common.live') : t('common.demo')}
           </span>
           {onCollapse && (
@@ -170,23 +165,23 @@ export default function AnalyticsPanel({ live, onCollapse }: AnalyticsPanelProps
             <BarChart data={riskData} margin={{ top: 4, right: 4, bottom: 0, left: -28 }}>
               <XAxis
                 dataKey="name"
-                tick={{ fill: '#A8B8C8', fontSize: 10 }}
-                axisLine={{ stroke: '#2D4862' }}
+                tick={{ fill: 'var(--color-secondary)', fontSize: 10 }}
+                axisLine={{ stroke: 'var(--color-border)' }}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fill: '#8195AA', fontSize: 10 }}
-                axisLine={{ stroke: '#2D4862' }}
+                tick={{ fill: 'var(--color-secondary)', fontSize: 10 }}
+                axisLine={{ stroke: 'var(--color-border)' }}
                 tickLine={false}
                 allowDecimals={false}
               />
               <Tooltip
-                cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                cursor={{ fill: 'rgba(36,75,99,0.06)' }}
                 contentStyle={{
-                  background: '#0D1B2A',
-                  border: '1px solid rgba(129,149,170,.2)',
+                  background: 'var(--color-card)',
+                  border: '1px solid var(--color-border)',
                   fontSize: 11,
-                  color: '#F3F7FC',
+                  color: 'var(--color-text)',
                   borderRadius: '10px',
                 }}
                 formatter={(value) => [String(value ?? ''), t('left.riskDist')]}
@@ -229,9 +224,9 @@ export default function AnalyticsPanel({ live, onCollapse }: AnalyticsPanelProps
           <StatRow icon={<Gauge size={12} />} label={t('left.avgGwHead')} value={`${fmtNum(avg(heads))} m`} />
           <StatRow icon={<Cpu size={12} />} label={t('left.avgNdmi')} value={fmtNum(avg(ndmis), 2)} />
         </div>
-        <div className="mt-2 flex gap-1.5 items-start border border-risk-moderate/50 bg-risk-moderate/10 rounded-sm px-2 py-1.5">
-          <AlertTriangle size={12} className="text-risk-moderate shrink-0 mt-0.5" />
-          <p className="text-[10px] leading-[1.4] text-risk-moderate">{t('left.simulatedNdmi')}</p>
+        <div className="mt-2 flex items-start gap-1.5 rounded-sm border border-ink-700 bg-ink-900/60 px-2 py-1.5">
+          <Info size={12} className="mt-0.5 shrink-0 text-ink-400" />
+          <p className="text-[10px] leading-[1.4] text-ink-400">{t('left.simulatedNdmi')}</p>
         </div>
       </div>
 

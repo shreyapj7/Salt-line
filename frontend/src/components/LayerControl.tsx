@@ -41,26 +41,28 @@ export default function LayerControl({
   const overlayLayers = LAYERS.filter((l) => l.kind === 'overlay');
 
   return (
-    <div className="absolute top-3 left-3 z-[600] w-[256px] max-w-[calc(100vw-24px)] pointer-events-none">
-      <div className="pointer-events-auto rounded-md border border-earth-gold/70 bg-ink-900 shadow-xl">
+    <div className="flex h-full min-h-0 min-w-0 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-earth-gold/65 bg-ink-900 shadow-sm">
         <button
+          type="button"
           onClick={() => setOpen((o) => !o)}
-          className="w-full flex items-center gap-2 px-2.5 py-2 text-left hover:bg-ink-800/80 transition-colors"
+          aria-expanded={open}
+          className="flex w-full shrink-0 items-center gap-2 px-3 py-3 text-left transition-colors hover:bg-ink-800/80"
         >
-          <Layers size={13} className="shrink-0 text-forest-bright" />
-          <span className="text-[11px] font-semibold tracking-wider uppercase text-ink-100 flex-1 truncate">
+          <Layers size={15} className="shrink-0 text-forest-base" />
+          <span className="min-w-0 flex-1 text-[11px] font-semibold uppercase tracking-wider text-ink-100">
             {t('map.layers')}
           </span>
           <ChevronDown
             size={12}
-            className={`text-ink-400 transition-transform ${open ? '' : '-rotate-90'}`}
+            className={`shrink-0 text-ink-400 transition-transform ${open ? '' : '-rotate-90'}`}
           />
         </button>
 
         {open && (
-          <div className="max-h-[calc(100vh-300px)] overflow-y-auto border-t border-ink-700">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain border-t border-ink-700">
             {/* Basemap switcher */}
-            <div className="border-b border-earth-gold/50 px-2.5 py-2">
+            <div className="border-b border-earth-gold/50 px-3 py-3">
               <div className="text-[9px] text-ink-400 uppercase tracking-wider mb-1.5">
                 {t('map.basemap')}
               </div>
@@ -69,9 +71,9 @@ export default function LayerControl({
                   <button
                     key={b}
                     onClick={() => onSetBasemap(b)}
-                    className={`px-1 py-1 text-[10px] rounded-sm border transition-colors ${
+                    className={`min-w-0 px-1.5 py-1.5 text-[10px] rounded-md border transition-colors ${
                       basemap === b
-                        ? 'border-forest-bright bg-forest-deep text-forest-pale font-medium'
+                        ? 'border-teal-500 bg-teal-850 text-teal-300 font-medium'
                         : 'border-earth-gold text-ink-300 hover:border-forest-light hover:text-ink-100'
                     }`}
                   >
@@ -82,7 +84,7 @@ export default function LayerControl({
             </div>
 
             {/* Vector & Site Markers */}
-            <div className="px-2.5 pt-2 pb-1 text-[9px] text-ink-400 uppercase tracking-wider">
+            <div className="px-3 pt-3 pb-1.5 text-[9px] text-ink-400 uppercase tracking-wider">
               {t('map.markersGroup')}
             </div>
             <div className="divide-y divide-ink-800 border-b border-ink-700">
@@ -91,14 +93,14 @@ export default function LayerControl({
                 const isInfoOpen = infoOpenId === layer.id;
                 return (
                   <div key={layer.id}>
-                    <div className="flex items-center gap-2 px-2.5 py-1.5 hover:bg-ink-800/50">
+                    <div className="flex items-start gap-2.5 px-3 py-2 hover:bg-ink-800/50">
                       <button
                         onClick={() =>
                           onToggleVectorLayer(layer.id as 'boundary' | 'stations' | 'community')
                         }
                         className={`w-3.5 h-3.5 shrink-0 rounded-sm border transition-colors flex items-center justify-center ${
                           visible
-                            ? 'bg-forest-light border-forest-bright'
+                            ? 'bg-teal-500 border-teal-300'
                             : 'bg-transparent border-ink-500 hover:border-ink-300'
                         }`}
                         title={visible ? t('layers.hide') : t('layers.show')}
@@ -108,7 +110,8 @@ export default function LayerControl({
                       </button>
                       <button
                         onClick={() => setInfoOpenId(isInfoOpen ? null : layer.id)}
-                        className="flex-1 text-left text-[11px] text-ink-200 hover:text-ink-100 truncate transition-colors"
+                        aria-expanded={isInfoOpen}
+                        className="min-w-0 flex-1 break-words text-left text-[11px] leading-snug text-ink-200 transition-colors hover:text-ink-100"
                       >
                         {t(layer.labelKey)}
                       </button>
@@ -120,22 +123,25 @@ export default function LayerControl({
             </div>
 
             {/* Spatial Overlays */}
-            <div className="px-2.5 pt-2 pb-1 text-[9px] text-ink-400 uppercase tracking-wider">
+            <div className="px-3 pt-3 pb-1.5 text-[9px] text-ink-400 uppercase tracking-wider">
               {t('map.overlaysGroup')}
             </div>
+            <p className="px-3 pb-2 text-[9px] leading-relaxed text-ink-500">
+              {t('map.overlaysDisclosure')}
+            </p>
             <div className="divide-y divide-ink-800">
               {overlayLayers.map((layer) => {
                 const active = activeOverlay === layer.id;
                 const isInfoOpen = infoOpenId === layer.id;
                 return (
                   <div key={layer.id}>
-                    <div className="flex items-center gap-2 px-2.5 py-1.5 hover:bg-ink-800/50">
+                    <div className="flex items-start gap-2.5 px-3 py-2 hover:bg-ink-800/50">
                       <button
                         onClick={() => onSelectOverlay(active ? null : layer.id)}
                         aria-label={`${active ? t('layers.hide') : t('layers.show')}: ${t(layer.labelKey)}`}
                         className={`w-3.5 h-3.5 shrink-0 rounded-full border transition-colors flex items-center justify-center ${
                           active
-                            ? 'border-teal-300 bg-teal-400/25 shadow-[0_0_10px_rgba(32,214,210,0.2)]'
+                            ? 'border-teal-300 bg-teal-400/25 shadow-[0_0_8px_rgba(36,75,99,0.12)]'
                             : 'border-ink-500 hover:border-teal-300'
                         }`}
                         title={active ? t('layers.hide') : t('layers.show')}
@@ -148,23 +154,17 @@ export default function LayerControl({
                           onSelectOverlay(active ? null : layer.id);
                           setInfoOpenId(active && isInfoOpen ? null : layer.id);
                         }}
-                        className={`flex-1 text-left text-[11px] truncate transition-colors ${
+                        aria-expanded={isInfoOpen || active}
+                        className={`min-w-0 flex-1 break-words text-left text-[11px] leading-snug transition-colors ${
                           active ? 'text-ink-100 font-medium' : 'text-ink-200 hover:text-ink-100'
                         }`}
                       >
                         {t(layer.labelKey)}
                       </button>
-                      <span
-                        className={`rounded-full border px-2 py-0.5 text-[8px] tracking-wider ${
-                          STATUS_STYLES[layer.status]
-                        }`}
-                      >
-                        {t(`layers.${layer.status}`)}
-                      </span>
                     </div>
                     {(isInfoOpen || active) && <LayerMetaDetails layerId={layer.id} />}
                     {layer.id === 'priority' && active && (
-                    <div className="border-t border-earth-gold/45 bg-ink-950 px-3 py-3">
+                      <div className="border-t border-earth-gold/45 bg-ink-950 px-3 py-3">
                         <div className="flex items-center justify-between gap-3 text-[10px]">
                           <label htmlFor="priority-heat-opacity" className="text-ink-300">
                             {t('map.heatmapOpacity')}
@@ -229,7 +229,7 @@ function LayerMetaDetails({ layerId }: { layerId: LayerId }) {
           <div
             className="h-[7px] w-full rounded-xs"
             style={{
-              background: `linear-gradient(90deg, ${layer.legendLow}, #A7B68A, ${layer.legendHigh})`,
+              background: `linear-gradient(90deg, ${layer.legendLow}, var(--color-sage), ${layer.legendHigh})`,
             }}
           />
           <div className="flex justify-between text-[9px] text-ink-400 mt-0.5">

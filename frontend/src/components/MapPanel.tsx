@@ -64,18 +64,18 @@ interface MapPanelProps {
 
 function stationDiamondIcon(color: string, active: boolean): L.DivIcon {
   const size = active ? 15 : 12;
-  const ring = active ? '#315D50' : '#FAF9F5';
+  const ring = active ? 'var(--color-ocean-deep)' : 'var(--color-card)';
   return L.divIcon({
     className: '',
-    html: `<div style="width:${size}px;height:${size}px;background:${color};border:2px solid ${ring};transform:rotate(45deg);box-shadow:0 1px 4px rgba(0,0,0,0.8);"></div>`,
+    html: `<div style="width:${size}px;height:${size}px;background:${color};border:2px solid ${ring};transform:rotate(45deg);box-shadow:0 1px 4px rgba(41,45,39,0.28);"></div>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
   });
 }
 
 function communityMarkerColor(loc: MonitoringLocation): string {
-  if (loc.verification === 'pending' || loc.verification === 'candidate') return '#A75030';
-  return '#4D9B89';
+  if (loc.verification === 'pending' || loc.verification === 'candidate') return 'var(--color-earth-medium)';
+  return 'var(--color-ocean-medium)';
 }
 
 function HeatGrid({
@@ -114,7 +114,7 @@ function HeatGrid({
           pathOptions={{
             fillColor: heatColor01(c.norm),
             fillOpacity: opacity,
-            color: 'rgba(10, 14, 11, 0.3)',
+            color: 'rgba(41, 45, 39, 0.25)',
             weight: 0.5,
           }}
         >
@@ -261,6 +261,19 @@ function ScaleBar() {
   return null;
 }
 
+function MapSizeObserver() {
+  const map = useMap();
+
+  useEffect(() => {
+    const container = map.getContainer();
+    const observer = new ResizeObserver(() => map.invalidateSize({ pan: false }));
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [map]);
+
+  return null;
+}
+
 function CustomZoomControls({ onReset }: { onReset: () => void }) {
   const map = useMap();
   const { t } = useI18n();
@@ -344,6 +357,7 @@ export default function MapPanel({
           selected={selected}
           resetSignal={resetSignal}
         />
+        <MapSizeObserver />
         <ScaleBar />
         <CustomZoomControls
           onReset={() => setResetSignal((current) => current + 1)}
@@ -353,11 +367,11 @@ export default function MapPanel({
           <Polygon
             positions={PILOT_BOUNDARY}
             pathOptions={{
-              color: '#4D9B89',
+              color: 'var(--color-ocean-medium)',
               opacity: 0.48,
               weight: 1.2,
               fill: true,
-              fillColor: '#4D9B89',
+              fillColor: 'var(--color-ocean-medium)',
               fillOpacity: 0.025,
               dashArray: '6 4',
             }}
@@ -375,7 +389,7 @@ export default function MapPanel({
           locations
             .filter((l) => l.type === 'station')
             .map((loc) => {
-              const color = loc.risk ? RISK_COLORS[loc.risk] : '#7D8A7F';
+              const color = loc.risk ? RISK_COLORS[loc.risk] : 'var(--color-sage)';
               const isSelected = selectedId === loc.id;
               return (
                 <Marker
@@ -392,7 +406,7 @@ export default function MapPanel({
                       <div className="text-forest-pale">{t('ver.authority')}</div>
                     </div>
                   </Tooltip>
-                  <Popup className="sl-leaflet-popup">
+                  <Popup className="sl-leaflet-popup" maxWidth={320} minWidth={220} autoPanPadding={[24, 24]}>
                     <MapPopupContent loc={loc} />
                   </Popup>
                 </Marker>
@@ -411,7 +425,7 @@ export default function MapPanel({
                   center={[loc.lat, loc.lng]}
                   radius={isSelected ? 8 : 6}
                   pathOptions={{
-                    color: isSelected ? '#315D50' : isPending ? '#A75030' : '#FAF9F5',
+                    color: isSelected ? 'var(--color-ocean-deep)' : isPending ? 'var(--color-earth-medium)' : 'var(--color-card)',
                     weight: isSelected ? 2.5 : 1.5,
                     fillColor: communityMarkerColor(loc),
                     fillOpacity: 0.9,
@@ -427,7 +441,7 @@ export default function MapPanel({
                       <div className="text-teal-300">{t(`ver.${loc.verification}`)}</div>
                     </div>
                   </Tooltip>
-                  <Popup className="sl-leaflet-popup">
+                  <Popup className="sl-leaflet-popup" maxWidth={320} minWidth={220} autoPanPadding={[24, 24]}>
                     <MapPopupContent loc={loc} />
                   </Popup>
                 </CircleMarker>
@@ -438,15 +452,15 @@ export default function MapPanel({
           <Circle
             center={[selected.lat, selected.lng]}
             radius={420}
-            pathOptions={{ color: '#315D50', weight: 1.5, fill: false, dashArray: '4 3' }}
+            pathOptions={{ color: 'var(--color-ocean-deep)', weight: 1.5, fill: false, dashArray: '4 3' }}
           />
         )}
       </MapContainer>
 
       {/* Active raster overlay status pill */}
       {activeMeta && (
-        <div className="absolute top-3 left-[274px] right-14 z-[590] pointer-events-none hidden sm:flex items-center">
-          <div className={`pointer-events-auto inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[10px] shadow-lg backdrop-blur-md ${
+        <div className="absolute left-3 right-14 top-14 z-[590] hidden items-center pointer-events-none sm:flex xl:top-3">
+          <div className={`pointer-events-auto inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1 rounded-lg border px-3 py-2 text-[10px] shadow-lg backdrop-blur-md ${
             activeOverlay === 'priority'
               ? 'border-teal-400/25 bg-ink-900/95 text-teal-300'
               : 'border-risk-moderate/25 bg-ink-900/95 text-earth-sand'
@@ -472,7 +486,7 @@ export default function MapPanel({
 
       {/* Subtle click hint when nothing is selected */}
       {!selected && (
-        <div className="hidden md:block absolute bottom-3 right-28 z-[590] pointer-events-none bg-ink-900/88 backdrop-blur-sm border border-ink-700 rounded-sm px-2.5 py-1 text-[10px] text-ink-300">
+        <div className="absolute bottom-16 right-3 z-[590] hidden max-w-[min(260px,calc(100%-24px))] pointer-events-none rounded-lg border border-earth-gold/50 bg-ink-900/95 px-2.5 py-1.5 text-[10px] text-ink-300 shadow-sm md:block">
           {t('map.clickHint')}
         </div>
       )}
@@ -483,59 +497,67 @@ export default function MapPanel({
 function MapPopupContent({ loc }: { loc: MonitoringLocation }) {
   const { t, lang } = useI18n();
   return (
-    <div className="text-[11px] leading-[1.5] text-ink-100 min-w-[205px]">
-      <div className="font-semibold text-[12px] text-ink-100 mb-0.5">
-        {localizedLocationName(loc, lang)}
-      </div>
-      <div className="text-ink-400 text-[10px] mb-1.5">
-        {loc.admin} · <span className="font-mono">{loc.id}</span>
-      </div>
-      <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10px]">
-        <span className="text-ink-400">{t('right.gwHead')}</span>
-        <span className="font-mono text-right">
+    <div className="w-full min-w-0 space-y-2 text-[11px] leading-relaxed text-[var(--color-text)]">
+      <header className="border-b border-[var(--color-border)] pb-2 pr-5">
+        <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-[var(--color-earth-medium)]">
+          {t('right.title')}
+        </p>
+        <h3 className="break-words text-[13px] font-semibold leading-snug text-[var(--color-text)]">
+          {localizedLocationName(loc, lang)}
+        </h3>
+        <p className="mt-1 break-words text-[10px] text-[var(--color-secondary)]">
+          {loc.admin} · <span className="font-mono">{loc.id}</span>
+        </p>
+      </header>
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1.5 text-[10px]">
+        <span className="min-w-0 break-words text-[var(--color-earth-medium)]">{t('right.gwHead')}</span>
+        <span className="min-w-0 break-words text-right font-mono text-[var(--color-text)]">
           {loc.gwHeadM !== undefined ? `${fmtNum(loc.gwHeadM)} m` : t('right.notAvailable')}
         </span>
-        <span className="text-ink-400">{t('right.elevation')}</span>
-        <span className="font-mono text-right">
+        <span className="min-w-0 break-words text-[var(--color-earth-medium)]">{t('right.elevation')}</span>
+        <span className="min-w-0 break-words text-right font-mono text-[var(--color-text)]">
           {loc.elevation !== undefined ? `${loc.elevation} m` : t('right.notAvailable')}
         </span>
-        <span className="text-ink-400">{t('right.coastDist')}</span>
-        <span className="font-mono text-right">
+        <span className="min-w-0 break-words text-[var(--color-earth-medium)]">{t('right.coastDist')}</span>
+        <span className="min-w-0 break-words text-right font-mono text-[var(--color-text)]">
           {loc.distanceToCoast !== undefined
             ? `${loc.distanceToCoast} km`
             : t('right.notAvailable')}
         </span>
-        <span className="text-ink-400">{t('right.rainfall')}</span>
-        <span className="font-mono text-right">
+        <span className="min-w-0 break-words text-[var(--color-earth-medium)]">{t('right.rainfall')}</span>
+        <span className="min-w-0 break-words text-right font-mono text-[var(--color-text)]">
           {loc.rainfallDeficitPct !== undefined
             ? `${fmtNum(loc.rainfallDeficitPct)}%`
             : t('right.notAvailable')}
         </span>
       </div>
       {loc.ndmi !== undefined && (
-        <div className="mt-1.5 text-[10px] text-risk-moderate">
-          NDMI {fmtNum(loc.ndmi, 2)} · {t('layers.simulated')}
+        <div className="border-t border-[var(--color-border)] pt-1.5 text-[10px] text-[var(--color-earth-medium)]">
+          NDMI {fmtNum(loc.ndmi, 2)}
+          {loc.ndmiSimulated && ` · ${t('layers.simulated')}`}
         </div>
       )}
-      {loc.risk && (
-        <div className="mt-1.5 flex items-center gap-1.5">
+      {(loc.risk || loc.provisionalPriority !== undefined) && (
+        <div className="flex flex-wrap items-center gap-1.5 border-t border-[var(--color-border)] pt-1.5">
+          {loc.risk && (
           <span
-            className="inline-block px-1.5 py-px rounded-xs text-[10px] text-ink-950 font-semibold"
+            className="inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold text-[var(--color-text)]"
             style={{ background: RISK_COLORS[loc.risk] }}
           >
             {t(`risk.${loc.risk}`)}
           </span>
-          <span className="text-[9px] text-ink-400">
+          )}
+          <span className="ml-auto text-[9px] text-[var(--color-secondary)]">
             {loc.dataOrigin === 'live' ? t('common.live') : t('layers.demo')}
           </span>
-        </div>
-      )}
-      {loc.provisionalPriority !== undefined && (
-        <div className="mt-1.5 flex items-center justify-between gap-3 text-[10px]">
-          <span className="text-ink-400">{t('layers.priority')}</span>
-          <span className="font-mono text-teal-200">
-            {fmtNum(loc.provisionalPriority, 2)} · {t('layers.provisional')}
-          </span>
+          {loc.provisionalPriority !== undefined && (
+            <div className="flex w-full items-center justify-between gap-3 pt-1 text-[10px]">
+              <span className="text-[var(--color-earth-medium)]">{t('layers.priority')}</span>
+              <span className="font-mono font-semibold text-[var(--color-forest)]">
+                {fmtNum(loc.provisionalPriority, 2)} · {t('layers.provisional')}
+              </span>
+            </div>
+          )}
         </div>
       )}
     </div>

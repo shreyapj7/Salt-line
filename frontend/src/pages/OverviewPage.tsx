@@ -34,7 +34,7 @@ import {
   RISK_COLORS,
 } from '@/lib/format';
 import { useI18n } from '@/i18n/I18nContext';
-import { StatusBadge } from '@/components/PagePrimitives';
+import { SourceLabel, StatusBadge } from '@/components/PagePrimitives';
 import MapPanel from '@/components/MapPanel';
 import type { AppPage } from '@/components/AppSidebar';
 import type { LayerId } from '@/map/layers';
@@ -60,7 +60,7 @@ function percentage(value: number | undefined, t: (key: string) => string): stri
 function eventDate(value: string, lang: string, t: (key: string) => string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return t('common.dateUnavailable');
-  return date.toLocaleString(lang === 'kn' ? 'kn-IN' : 'en-IN', {
+  return date.toLocaleString(lang === 'kn' ? 'kn-IN' : lang === 'tul' ? 'tcy-IN' : 'en-IN', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -115,7 +115,7 @@ function SectionCard({
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <Icon size={15} className="text-teal-300" />
-            <h2 className="text-[12px] font-semibold tracking-wide text-ink-100">{title}</h2>
+            <h2 className="text-[12px] font-semibold tracking-wide text-earth-dark">{title}</h2>
           </div>
           {subtitle && <p className="mt-1 pl-[23px] text-[10px] text-ink-500">{subtitle}</p>}
         </div>
@@ -134,16 +134,6 @@ export default function OverviewPage({
 }: OverviewPageProps) {
   const { t, lang } = useI18n();
   const previewLayers = new Set<LayerId>(['stations', 'community']);
-  const allStreamsLive =
-    live.locationsLive && live.sensorsLive && live.reportsLive && !live.errorMessage;
-  const anyStreamLive = live.locationsLive || live.sensorsLive || live.reportsLive;
-  const modeLabel = !live.checked
-    ? t('nav.checking')
-    : allStreamsLive
-      ? t('source.live')
-      : anyStreamLive
-        ? t('source.liveSimulated')
-        : t('source.demoFallback');
   const coverageValues = live.locations
     .map((location) => location.coverage)
     .filter((value): value is number => value !== undefined);
@@ -270,7 +260,7 @@ export default function OverviewPage({
                   <span className="text-ink-600">/</span>
                   <span className="font-normal tracking-[0.1em] text-ink-400">{t('app.tagline')}</span>
                 </div>
-                <h1 className="mt-2 text-xl font-semibold tracking-tight text-ink-100 sm:text-2xl">
+                <h1 className="mt-2 text-xl font-semibold tracking-tight text-earth-dark sm:text-2xl">
                   {t('overview.title')}
                 </h1>
                 <p className="mt-1.5 text-[12px] text-ink-300">
@@ -279,10 +269,6 @@ export default function OverviewPage({
               </div>
             </div>
             <div className="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end">
-              <StatusBadge
-                label={modeLabel}
-                kind={allStreamsLive ? 'live' : anyStreamLive ? 'mixed' : 'demo'}
-              />
               {live.lastRefreshAt && (
                 <span className="text-[10px] text-ink-400">
                   {t('overview.checkedAt', { time: eventDate(live.lastRefreshAt, lang, t) })}
@@ -427,9 +413,7 @@ export default function OverviewPage({
                           {t('field.confidence', { value: percentage(location.confidence, t) })}
                         </span>
                         <span>{t(`ver.${location.verification}`)}</span>
-                        <span className={location.dataOrigin === 'live' ? 'text-forest-pale' : 'text-earth-sand'}>
-                          {location.dataOrigin === 'live' ? t('common.live') : t('common.demo')}
-                        </span>
+                        <SourceLabel live={location.dataOrigin === 'live'} />
                       </div>
                     </button>
                   ))
@@ -453,18 +437,7 @@ export default function OverviewPage({
                       <Radio size={14} className="text-teal-300" />
                       <span className="text-[10px] font-medium text-ink-200">{t('ui.sensorNetwork')}</span>
                     </div>
-                    <StatusBadge
-                      label={
-                        !live.checked
-                          ? t('overview.checking')
-                          : live.sensorsLive && simulatedSensorCount === 0
-                            ? t('source.live')
-                            : live.sensorsLive
-                              ? t('source.liveSimulated')
-                              : t('source.demoFallback')
-                      }
-                      kind={live.sensorsLive ? (simulatedSensorCount ? 'mixed' : 'live') : 'demo'}
-                    />
+                    <SourceLabel live={live.sensorsLive} simulated={simulatedSensorCount > 0} />
                   </div>
                   <div className="mt-2 flex items-baseline gap-2">
                     <span className="font-mono text-xl text-ink-100">{onlineSensorCount}</span>
@@ -500,10 +473,7 @@ export default function OverviewPage({
                       <ClipboardCheck size={14} className="text-forest-bright" />
                       <span className="text-[10px] font-medium text-ink-200">{t('overview.communityReports')}</span>
                     </div>
-                    <StatusBadge
-                      label={live.reportsLive ? t('source.live') : t('source.demoFallback')}
-                      kind={live.reportsLive ? 'live' : 'demo'}
-                    />
+                    <SourceLabel live={live.reportsLive} />
                   </div>
                   <div className="mt-2 flex items-baseline gap-2">
                     <span className="font-mono text-xl text-ink-100">{live.reports.length}</span>
@@ -561,26 +531,26 @@ export default function OverviewPage({
               {classifiedLocations ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={riskData} margin={{ top: 8, right: 12, bottom: 4, left: -20 }}>
-                    <CartesianGrid stroke="#20364F" strokeDasharray="3 3" vertical={false} />
+                    <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
                     <XAxis
                       dataKey="label"
-                      tick={{ fill: '#A8B8C8', fontSize: 11 }}
-                      axisLine={{ stroke: '#2D4862' }}
+                      tick={{ fill: 'var(--color-secondary)', fontSize: 11 }}
+                      axisLine={{ stroke: 'var(--color-border)' }}
                       tickLine={false}
                     />
                     <YAxis
                       allowDecimals={false}
-                      tick={{ fill: '#8195AA', fontSize: 11 }}
+                      tick={{ fill: 'var(--color-secondary)', fontSize: 11 }}
                       axisLine={false}
                       tickLine={false}
                     />
                     <Tooltip
-                      cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                      cursor={{ fill: 'rgba(36,75,99,0.06)' }}
                       contentStyle={{
-                        background: '#0D1B2A',
-                        border: '1px solid rgba(129,149,170,.2)',
+                        background: 'var(--color-card)',
+                        border: '1px solid var(--color-border)',
                         borderRadius: '12px',
-                        color: '#F3F7FC',
+                        color: 'var(--color-text)',
                         fontSize: 12,
                       }}
                       formatter={(value) => [String(value ?? ''), t('vuln.locations')]}
@@ -626,15 +596,10 @@ export default function OverviewPage({
                         <span className="text-[11px] font-medium text-ink-100">
                           {event.labelKey ? t(event.labelKey) : event.label}
                         </span>
-                        <span
-                          className={`rounded-sm border px-1.5 py-0.5 text-[9px] uppercase tracking-wide ${
-                            event.dataOrigin === 'live'
-                              ? 'border-forest-light/60 bg-forest-deep/40 text-forest-pale'
-                              : 'border-earth-clay/50 bg-earth-clay/10 text-earth-sand'
-                          }`}
-                        >
-                          {event.dataOrigin === 'live' ? t('source.live') : t('evidence.demoSynthetic')}
-                        </span>
+                        <SourceLabel
+                          live={event.dataOrigin === 'live'}
+                          simulated={event.dataOrigin === 'demo'}
+                        />
                       </div>
                       <p className="mt-1 text-[10px] leading-relaxed text-ink-400">
                         {event.detailKey ? t(event.detailKey) : event.detail}
@@ -698,7 +663,7 @@ export default function OverviewPage({
                       {t(`ver.${location.verification}`)}
                     </span>
                     {evidenceIsDemo && (
-                      <span className="text-[9px] text-earth-sand">{t('ui.demoEvidenceRecord')}</span>
+                      <span className="text-[9px] text-ink-500">{t('ui.demoEvidenceRecord')}</span>
                     )}
                   </div>
                   <div className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 text-[10px] sm:grid-cols-2">

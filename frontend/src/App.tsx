@@ -47,7 +47,7 @@ function Dashboard({ onBackToHome }: { onBackToHome: () => void }) {
   const handleSelectLocation = (loc: MonitoringLocation) => {
     setSelectedId(loc.id);
     setRightOpen(true);
-    if (window.innerWidth < 1024) {
+    if (window.innerWidth < 1280) {
       setMobileDrawer('right');
     }
   };

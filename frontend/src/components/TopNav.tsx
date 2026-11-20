@@ -4,7 +4,6 @@ import {
   Globe,
   Settings,
   Info,
-  MapPin,
   Menu,
   Home,
   X,
@@ -56,26 +55,22 @@ export default function TopNav({
   const statusBadge =
     statusMode === 'checking'
       ? {
-          dot: 'bg-teal-400',
-          border: 'border-teal-400/25 text-teal-300 bg-teal-850/40',
-          label: t('nav.checking'),
+          dot: 'bg-earth-sand animate-pulse',
+          label: t('nav.statusChecking'),
         }
       : statusMode === 'full'
       ? {
-          dot: 'bg-success-bright',
-          border: 'border-success-bright/30 text-success-pale bg-success-deep/40',
+          dot: 'bg-forest-base',
           label: t('nav.connected'),
         }
       : statusMode === 'partial'
         ? {
-            dot: 'bg-risk-moderate',
-            border: 'border-risk-moderate/30 text-earth-sand bg-risk-moderate/10',
+            dot: 'bg-earth-sand',
             label: t('nav.partial'),
           }
         : {
-            dot: 'bg-risk-high',
-            border: 'border-risk-high/30 text-risk-high bg-risk-high/10',
-            label: `${t('nav.offline')} · ${t('nav.demoMode')}`,
+            dot: 'bg-ink-500',
+            label: t('nav.offline'),
           };
 
   return (
@@ -88,12 +83,12 @@ export default function TopNav({
           aria-label={sidebarOpen ? t('nav.closeNavigation') : t('nav.openNavigation')}
           aria-expanded={sidebarOpen}
           aria-controls="app-navigation"
-          className="shrink-0 rounded-lg border border-earth-gold/65 bg-ink-900 p-2 text-ink-300 transition-colors hover:border-forest-light hover:text-forest-pale"
+          className="shrink-0 rounded-lg border border-earth-gold/65 bg-ink-900 p-2 text-ink-300 transition-colors hover:border-teal-400 hover:text-teal-300"
         >
           <Menu size={18} />
         </button>
         <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-forest-light/35 bg-forest-deep text-forest-pale">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-teal-400/35 bg-teal-850 text-teal-300">
             <Waves size={18} />
           </div>
           <div className="leading-tight min-w-0">
@@ -116,18 +111,13 @@ export default function TopNav({
         <button
           type="button"
           onClick={onBackToHome}
-          className="inline-flex items-center gap-2 rounded-lg border border-earth-gold/60 bg-ink-900 px-2.5 py-2 text-ink-300 transition-colors hover:border-forest-light hover:text-forest-pale sm:px-3"
+          className="inline-flex items-center gap-2 rounded-lg border border-earth-gold/60 bg-ink-900 px-2.5 py-2 text-ink-300 transition-colors hover:border-teal-400 hover:text-teal-300 sm:px-3"
           aria-label={t('nav.returnHome')}
           title={t('nav.publicHome')}
         >
           <Home size={14} />
           <span className="hidden text-[11px] sm:inline">{t('nav.publicSite')}</span>
         </button>
-
-        <div className="hidden items-center gap-1.5 rounded-full border border-earth-gold/50 bg-ink-900 px-3 py-1.5 text-[10px] text-ink-300 lg:flex">
-          <MapPin size={12} className="text-teal-300" />
-          <span>{t('app.pilot')}</span>
-        </div>
 
         {/* Connection status */}
         <div className="relative">
@@ -136,14 +126,11 @@ export default function TopNav({
             onClick={() => setStatusOpen((open) => !open)}
             aria-expanded={statusOpen}
             aria-controls="data-source-details"
-            className={`flex items-center gap-2 whitespace-nowrap rounded-full border px-3 py-1.5 text-[10px] font-medium transition-colors hover:brightness-110 ${statusBadge.border}`}
+            className="inline-flex items-center gap-2 whitespace-nowrap rounded-md px-2 py-1.5 text-[11px] text-ink-300 transition-colors hover:bg-ink-800 hover:text-ink-100"
             title={t('nav.connection')}
           >
-            <span className={`h-1.5 w-1.5 rounded-full ${statusBadge.dot} ${live.refreshing ? 'animate-pulse' : ''}`} />
-            <span className="hidden sm:inline">{statusBadge.label}</span>
-            <span className="sm:hidden">
-              {statusMode === 'full' ? t('common.live') : statusMode === 'checking' ? '…' : t('common.demo')}
-            </span>
+            <span className={`h-2 w-2 shrink-0 rounded-full ${statusBadge.dot} ${live.refreshing && statusMode !== 'checking' ? 'animate-pulse' : ''}`} />
+            <span>{statusBadge.label}</span>
           </button>
           {statusOpen && (
             <>
@@ -156,20 +143,25 @@ export default function TopNav({
               <div
                 id="data-source-details"
                 role="status"
-                className="absolute right-0 top-full z-[1201] mt-2 w-[min(360px,calc(100vw-24px))] rounded-xl border border-white/[0.1] bg-ink-850 p-4 shadow-2xl"
+                className="absolute right-0 top-full z-[1201] mt-2 w-[min(360px,calc(100vw-24px))] rounded-xl border border-ink-700 bg-ink-850 p-4 shadow-xl"
               >
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-semibold text-ink-100">{t('nav.connection')}</p>
                   <span className={`h-2 w-2 rounded-full ${statusBadge.dot}`} />
                 </div>
                 <p className="mt-1 text-xs text-ink-300">{statusBadge.label}</p>
-                {live.errorMessage ? (
+                <p className="mt-2 text-[11px] leading-relaxed text-ink-400">
+                  {statusMode === 'full'
+                    ? t('nav.sourcesResponding')
+                    : statusMode === 'partial'
+                      ? t('nav.partialDetails')
+                      : statusMode === 'demo'
+                        ? t('nav.offlineDetails')
+                        : t('nav.checkingSources')}
+                </p>
+                {live.errorMessage && (
                   <p className="mt-3 rounded-lg border border-risk-high/20 bg-risk-high/5 px-3 py-2 text-[11px] leading-relaxed text-ink-300">
                     {t('common.errorDetail', { detail: live.errorMessage })}
-                  </p>
-                ) : (
-                  <p className="mt-3 text-[11px] leading-relaxed text-ink-400">
-                    {live.checked ? t('nav.sourcesResponding') : t('nav.checkingSources')}
                   </p>
                 )}
               </div>
@@ -210,7 +202,7 @@ export default function TopNav({
               setLangOpen((o) => !o);
               setSettingsOpen(false);
             }}
-            className="flex items-center gap-1.5 rounded-lg border border-earth-gold/65 bg-ink-900 px-3 py-2 text-ink-200 transition-colors hover:border-forest-light hover:text-ink-100"
+            className="flex items-center gap-1.5 rounded-lg border border-earth-gold/65 bg-ink-900 px-3 py-2 text-ink-200 transition-colors hover:border-teal-400 hover:text-teal-300"
             title={t('nav.language')}
           >
             <Globe size={12} className="text-teal-300" />
@@ -219,7 +211,7 @@ export default function TopNav({
           {langOpen && (
             <>
               <div className="fixed inset-0 z-[1200]" onClick={() => setLangOpen(false)} />
-              <div className="absolute right-0 top-full z-[1201] mt-2 min-w-[160px] rounded-xl border border-white/[0.08] bg-ink-850 p-1 shadow-xl">
+              <div className="absolute right-0 top-full z-[1201] mt-2 min-w-[160px] rounded-xl border border-ink-700 bg-ink-850 p-1 shadow-lg">
                 {LANGUAGES.map((l) => (
                   <button
                     key={l.code}
@@ -252,7 +244,7 @@ export default function TopNav({
             className={`p-1.5 rounded-sm border transition-colors ${
               settingsOpen
                 ? 'border-teal-400/40 bg-teal-850/60 text-teal-300'
-                : 'border-white/[0.1] bg-ink-850 text-ink-300 hover:text-ink-100 hover:border-teal-400/35'
+                : 'border-ink-700 bg-ink-850 text-ink-300 hover:text-teal-300 hover:border-teal-400/50'
             }`}
             title={t('nav.settings')}
             aria-label={t('nav.settings')}
@@ -262,7 +254,7 @@ export default function TopNav({
           {settingsOpen && (
             <>
               <div className="fixed inset-0 z-[1200]" onClick={() => setSettingsOpen(false)} />
-              <div className="absolute right-0 top-full z-[1201] mt-2 w-[280px] rounded-xl border border-white/[0.08] bg-ink-850 p-4 shadow-2xl space-y-4">
+              <div className="absolute right-0 top-full z-[1201] mt-2 w-[280px] rounded-xl border border-ink-700 bg-ink-850 p-4 shadow-xl space-y-4">
                 <div className="flex items-center justify-between border-b border-ink-700 pb-1.5">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-200">
                     {t('nav.settings')}
@@ -292,7 +284,7 @@ export default function TopNav({
                         className={`py-1 text-[10px] rounded-sm border transition-colors ${
                           autoRefreshMs === opt.ms
                                 ? 'border-teal-400 bg-teal-850 text-teal-300'
-                                : 'border-white/[0.1] text-ink-300 hover:border-teal-400/40'
+                                : 'border-ink-700 text-ink-300 hover:border-teal-400/60 hover:text-teal-300'
                         }`}
                       >
                         {opt.label}
@@ -313,7 +305,7 @@ export default function TopNav({
                     step={0.05}
                     value={overlayOpacity}
                     onChange={(e) => onSetOverlayOpacity(Number(e.target.value))}
-                    className="w-full accent-forest-bright"
+                    className="w-full accent-teal-400"
                   />
                 </div>
 
@@ -331,7 +323,7 @@ export default function TopNav({
         {/* Scientific methodology & integrity modal trigger */}
         <button
           onClick={() => setMethodologyOpen(true)}
-          className="p-1.5 rounded-sm border border-ink-600 bg-ink-850 text-ink-300 hover:text-forest-pale hover:border-forest-light transition-colors"
+          className="p-1.5 rounded-sm border border-ink-600 bg-ink-850 text-ink-300 hover:text-teal-300 hover:border-teal-400 transition-colors"
           title={t('nav.methodology')}
           aria-label={t('nav.methodology')}
         >
@@ -341,7 +333,7 @@ export default function TopNav({
 
       {methodologyOpen && (
         <div
-          className="fixed inset-0 z-[1300] bg-black/70 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-[1300] bg-black/45 backdrop-blur-xs flex items-center justify-center p-4"
           onClick={() => setMethodologyOpen(false)}
         >
           <div
@@ -372,7 +364,7 @@ export default function TopNav({
             <div className="flex justify-end">
               <button
                 onClick={() => setMethodologyOpen(false)}
-                className="px-3 py-1.5 rounded-sm border border-forest-light bg-forest-deep text-forest-pale text-[11px] hover:bg-forest-base transition-colors"
+                className="px-3 py-1.5 rounded-sm border border-teal-500 bg-teal-850 text-teal-300 text-[11px] hover:bg-teal-700 transition-colors"
               >
                 {t('common.close')}
               </button>

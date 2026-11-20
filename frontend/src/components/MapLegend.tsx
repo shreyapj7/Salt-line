@@ -6,7 +6,7 @@ export default function MapLegend({ heatmapActive }: { heatmapActive: boolean })
   const risks = ['low', 'moderate', 'elevated', 'high'] as const;
 
   return (
-    <div className="absolute bottom-4 left-4 z-[600] hidden max-w-[260px] rounded-md border border-earth-gold/70 bg-ink-900 px-4 py-3 shadow-lg sm:block">
+    <div className="absolute bottom-3 left-3 z-[600] hidden max-h-[min(60vh,460px)] max-w-[min(260px,calc(100%-24px))] overflow-y-auto rounded-xl border border-earth-gold/70 bg-ink-900 px-4 py-3 shadow-lg sm:block">
       <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-200">
         {t('map.legend')}
       </div>
@@ -14,7 +14,7 @@ export default function MapLegend({ heatmapActive }: { heatmapActive: boolean })
         <div className="flex items-center gap-2">
           <span
             className="h-3 w-3 border border-dashed border-teal-300/70"
-            style={{ background: 'rgba(77,155,137,0.08)' }}
+            style={{ background: 'rgba(71,124,149,0.08)' }}
           />
           <span className="text-[10px] text-ink-300">{t('map.boundary')}</span>
         </div>
@@ -31,7 +31,7 @@ export default function MapLegend({ heatmapActive }: { heatmapActive: boolean })
           <span className="text-[10px] text-ink-300">{t('map.candidate')}</span>
         </div>
         {heatmapActive && (
-          <div className="mt-2 border-t border-white/[0.07] pt-2">
+          <div className="mt-2 border-t border-ink-700 pt-2">
             <p className="mb-1.5 text-[9px] font-medium text-teal-300">{t('layers.priority')}</p>
             <div
               className="h-2 rounded-full"

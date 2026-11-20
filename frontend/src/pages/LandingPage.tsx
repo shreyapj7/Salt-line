@@ -73,7 +73,7 @@ export default function LandingPage({ onOpenDashboard }: LandingPageProps) {
       <header className="sticky top-0 z-40 border-b border-earth-gold/45 bg-ink-900">
         <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between gap-5 px-5 sm:px-8">
           <a href="#home" className="flex items-center gap-3" aria-label="SALT-LINE">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-forest-deep text-forest-pale">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-300 text-white">
               <Waves size={21} />
             </span>
             <span>
@@ -108,7 +108,7 @@ export default function LandingPage({ onOpenDashboard }: LandingPageProps) {
           <button
             type="button"
             onClick={onOpenDashboard}
-            className="hidden items-center gap-2 rounded-md bg-forest-base px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-forest-bright sm:inline-flex"
+            className="hidden items-center gap-2 rounded-md bg-teal-300 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-teal-500 sm:inline-flex"
           >
             {t('landing.openDashboard')} <ArrowRight size={14} />
           </button>
@@ -129,7 +129,7 @@ export default function LandingPage({ onOpenDashboard }: LandingPageProps) {
                 {t(label)}
               </a>
             ))}
-            <button type="button" onClick={onOpenDashboard} className="mt-2 flex w-full items-center justify-center gap-2 rounded-md bg-forest-base px-4 py-3 text-sm font-semibold text-white">
+            <button type="button" onClick={onOpenDashboard} className="mt-2 flex w-full items-center justify-center gap-2 rounded-md bg-teal-300 px-4 py-3 text-sm font-semibold text-white hover:bg-teal-500">
               {t('landing.openDashboard')} <ArrowRight size={15} />
             </button>
           </nav>
@@ -143,14 +143,14 @@ export default function LandingPage({ onOpenDashboard }: LandingPageProps) {
             {t('landing.pilot')}
           </div>
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-earth-clay">SALT-LINE</p>
-          <h1 className="max-w-[13ch] text-4xl font-semibold leading-[1.08] tracking-[-0.045em] sm:text-5xl lg:text-[3.7rem]">
+          <h1 className="max-w-[13ch] text-4xl font-semibold leading-[1.08] tracking-[-0.045em] text-earth-dark sm:text-5xl lg:text-[3.7rem]">
             {t('landing.heroTitle')}
           </h1>
           <p className="mt-6 max-w-xl text-base leading-7 text-ink-400 sm:text-lg sm:leading-8">
             {t('landing.heroDescription')}
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <button type="button" onClick={onOpenDashboard} className="inline-flex items-center gap-2 rounded-md bg-forest-base px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-forest-bright">
+            <button type="button" onClick={onOpenDashboard} className="inline-flex items-center gap-2 rounded-md bg-teal-300 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-500">
               {t('landing.exploreDashboard')} <ArrowRight size={16} />
             </button>
             <a href="#problem" className="inline-flex items-center gap-2 rounded-md border border-earth-gold px-5 py-3 text-sm font-semibold text-ink-200 transition hover:bg-ink-800">
@@ -171,7 +171,7 @@ export default function LandingPage({ onOpenDashboard }: LandingPageProps) {
             alt={t('landing.imageAlt')}
             className="absolute inset-0 h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#203d32]/80 via-[#203d32]/12 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#244B63]/80 via-[#244B63]/12 to-transparent" />
           <div className="absolute left-5 top-5 rounded-md bg-ink-900/90 px-3 py-2 text-[10px] font-medium text-ink-200 shadow-sm">
             {t('landing.coastalIntelligence')}
           </div>
@@ -191,7 +191,7 @@ export default function LandingPage({ onOpenDashboard }: LandingPageProps) {
         <div className="mx-auto grid max-w-7xl gap-10 px-5 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-earth-clay">{t('landing.problemEyebrow')}</p>
-            <h2 className="mt-3 max-w-md text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+            <h2 className="mt-3 max-w-md text-3xl font-semibold leading-tight tracking-tight text-earth-dark sm:text-4xl">
               {t('landing.problemTitle')}
             </h2>
           </div>
@@ -215,7 +215,7 @@ export default function LandingPage({ onOpenDashboard }: LandingPageProps) {
       <section id="solution" className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20">
         <div className="max-w-2xl">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-earth-clay">{t('landing.solutionEyebrow')}</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">{t('landing.solutionTitle')}</h2>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-earth-dark sm:text-4xl">{t('landing.solutionTitle')}</h2>
           <p className="mt-4 text-sm leading-7 text-ink-400">
             {t('landing.solutionDescription')}
           </p>
@@ -224,22 +224,22 @@ export default function LandingPage({ onOpenDashboard }: LandingPageProps) {
           {solutionAreas.map(({ icon: Icon, title, body }) => (
             <article key={title} className="rounded-lg border border-earth-gold/55 bg-ink-900 p-6 shadow-[0_8px_24px_rgba(41,45,39,0.05)]">
               <span className="flex h-10 w-10 items-center justify-center rounded-md bg-forest-deep text-forest-pale"><Icon size={19} /></span>
-              <h3 className="mt-5 text-base font-semibold">{t(title)}</h3>
+              <h3 className="mt-5 text-base font-semibold text-earth-dark">{t(title)}</h3>
               <p className="mt-2 text-sm leading-6 text-ink-400">{t(body)}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section id="how-it-works" className="bg-[#E8E4D9] py-16 sm:py-20">
+      <section id="how-it-works" className="bg-earth-beige py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-earth-clay">{t('landing.processEyebrow')}</p>
-          <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">{t('landing.processTitle')}</h2>
+          <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight text-earth-dark sm:text-4xl">{t('landing.processTitle')}</h2>
           <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {steps.map(([title, body], index) => (
               <li key={title} className="relative rounded-md bg-ink-900 p-5 shadow-sm">
                 <span className="font-mono text-xs font-semibold text-forest-bright">0{index + 1}</span>
-                <h3 className="mt-5 text-base font-semibold">{t(title)}</h3>
+                <h3 className="mt-5 text-base font-semibold text-earth-dark">{t(title)}</h3>
                 <p className="mt-2 text-xs leading-5 text-ink-400">{t(body)}</p>
               </li>
             ))}
@@ -251,7 +251,7 @@ export default function LandingPage({ onOpenDashboard }: LandingPageProps) {
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-earth-clay">{t('landing.featuresEyebrow')}</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">{t('landing.featuresTitle')}</h2>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-earth-dark sm:text-4xl">{t('landing.featuresTitle')}</h2>
           </div>
           <button type="button" onClick={onOpenDashboard} className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-forest-pale hover:text-forest-bright">
             {t('landing.explorePlatform')} <ArrowRight size={15} />
@@ -274,7 +274,7 @@ export default function LandingPage({ onOpenDashboard }: LandingPageProps) {
         <div className="mx-auto grid max-w-7xl gap-10 px-5 sm:px-8 lg:grid-cols-[1fr_1fr] lg:items-center">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-earth-clay">{t('landing.impactEyebrow')}</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">{t('landing.impactTitle')}</h2>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-earth-dark sm:text-4xl">{t('landing.impactTitle')}</h2>
             <p className="mt-4 max-w-xl text-sm leading-7 text-ink-400">
               {t('landing.impactDescription')}
             </p>
@@ -291,12 +291,12 @@ export default function LandingPage({ onOpenDashboard }: LandingPageProps) {
       </section>
 
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20">
-        <div className="rounded-lg bg-forest-base px-6 py-10 text-white sm:px-10 sm:py-12 lg:flex lg:items-center lg:justify-between lg:gap-8">
+        <div className="rounded-lg bg-teal-300 px-6 py-10 text-white sm:px-10 sm:py-12 lg:flex lg:items-center lg:justify-between lg:gap-8">
           <div className="max-w-2xl">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70">{t('landing.ctaEyebrow')}</p>
             <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">{t('landing.ctaTitle')}</h2>
           </div>
-          <button type="button" onClick={onOpenDashboard} className="mt-7 inline-flex shrink-0 items-center gap-2 rounded-md bg-ink-900 px-5 py-3 text-sm font-semibold text-forest-pale transition hover:bg-white lg:mt-0">
+          <button type="button" onClick={onOpenDashboard} className="mt-7 inline-flex shrink-0 items-center gap-2 rounded-md bg-ink-900 px-5 py-3 text-sm font-semibold text-teal-300 transition hover:bg-white lg:mt-0">
             {t('landing.enterDashboard')} <ArrowRight size={15} />
           </button>
         </div>

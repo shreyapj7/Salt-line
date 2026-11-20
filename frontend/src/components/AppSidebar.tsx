@@ -91,7 +91,7 @@ export default function AppSidebar({
             aria-current={isActive ? 'page' : undefined}
             className={`group flex w-full items-center gap-3 rounded-lg border-l-2 px-3 py-3 text-left text-[12px] transition-colors ${
               isActive
-                ? 'border-teal-400 bg-gradient-to-r from-teal-400/10 to-forest-bright/10 text-ink-100 shadow-[inset_0_0_28px_rgba(32,214,210,0.04)]'
+                ? 'border-teal-300 bg-teal-850/70 text-teal-300 shadow-[inset_0_0_18px_rgba(36,75,99,0.06)]'
                 : 'border-transparent text-ink-300 hover:border-teal-400/50 hover:bg-ink-850/80 hover:text-ink-100'
             }`}
           >
@@ -112,8 +112,8 @@ export default function AppSidebar({
 
   const sidebarContent = (
     <>
-      <div className="flex items-center gap-3 border-b border-white/[0.07] px-5 py-6">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-teal-400/30 bg-gradient-to-br from-teal-400/20 to-forest-bright/20 text-teal-300 shadow-[0_0_26px_rgba(32,214,210,0.12)]">
+      <div className="flex items-center gap-3 border-b border-ink-700 px-5 py-6">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-teal-300/35 bg-teal-850 text-teal-300">
           <Waves size={21} />
         </div>
 
@@ -134,7 +134,7 @@ export default function AppSidebar({
         {renderItems(primaryItems)}
       </div>
 
-      <div className="border-t border-white/[0.07] px-3 py-4">
+      <div className="border-t border-ink-700 px-3 py-4">
         <div className="mb-3 px-3 text-[9px] font-semibold uppercase tracking-[0.18em] text-ink-500">
           {t('nav.platform')}
         </div>
@@ -164,7 +164,7 @@ export default function AppSidebar({
         role="dialog"
         aria-modal="true"
         aria-label={t('nav.dashboardNavigation')}
-        className={`absolute inset-y-0 left-0 flex h-full w-72 max-w-[88vw] flex-col border-r border-white/[0.08] bg-ink-900 shadow-[24px_0_64px_rgba(0,0,0,0.42)] transition-transform duration-200 ease-out ${
+        className={`absolute inset-y-0 left-0 flex h-full w-72 max-w-[88vw] flex-col border-r border-ink-700 bg-ink-900 shadow-[12px_0_40px_rgba(41,45,39,0.16)] transition-transform duration-200 ease-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >

@@ -1,10 +1,10 @@
 import type { Lang, MonitoringLocation, RiskLevel } from '@/types';
 
 export const RISK_COLORS: Record<RiskLevel, string> = {
-  low: '#4D9B89',
-  moderate: '#A7B68A',
-  elevated: '#A75030',
-  high: '#B4483C',
+  low: 'var(--color-forest)',
+  moderate: 'var(--color-risk-moderate)',
+  elevated: 'var(--color-risk-elevated)',
+  high: 'var(--color-risk-high)',
 };
 
 export function riskColorForScore(score: number): string {
@@ -14,13 +14,13 @@ export function riskColorForScore(score: number): string {
   return RISK_COLORS.high;
 }
 
-/** Continuous priority heat colour: blue/cyan -> yellow -> orange/coral. */
+/** Continuous priority heat colour: coastal blue -> warm sand -> coral. */
 export function heatColor01(v01: number): string {
   const t = Math.min(1, Math.max(0, v01));
   const stops: [number, number, number][] = [
-    [77, 155, 137],
-    [167, 182, 138],
-    [214, 197, 165],
+    [36, 75, 99],
+    [71, 124, 149],
+    [200, 173, 145],
     [180, 72, 60],
   ];
   const seg = Math.min(2, Math.floor(t * 3));
@@ -62,7 +62,8 @@ export function fmtRefreshTime(iso: string | null, lang: Lang = 'en'): string {
   if (!iso) return '—';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleTimeString(lang === 'kn' ? 'kn-IN' : 'en-IN', {
+  const locale = lang === 'kn' ? 'kn-IN' : lang === 'tul' ? 'tcy-IN' : 'en-IN';
+  return d.toLocaleTimeString(locale, {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',

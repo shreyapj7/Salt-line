@@ -30,10 +30,10 @@ function Row({
   muted?: boolean;
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 px-3 py-1 hover:bg-ink-800/60 transition-colors">
-      <span className="text-[11px] text-ink-400 shrink-0">{label}</span>
+    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-baseline gap-3 px-3 py-1.5 transition-colors hover:bg-ink-800/60">
+      <span className="min-w-0 break-words text-[11px] text-ink-400">{label}</span>
       <span
-        className={`text-[11px] text-right ${muted ? 'text-ink-400 italic' : 'text-ink-100'} ${
+        className={`min-w-0 break-words text-right text-[11px] ${muted ? 'text-ink-400 italic' : 'text-ink-100'} ${
           mono ? 'font-mono' : ''
         }`}
       >
@@ -92,7 +92,7 @@ export default function LocationPanel({ location, live, onClose }: Props) {
 
   if (!location) {
     return (
-      <aside className="flex h-full w-[340px] shrink-0 flex-col border-l border-earth-gold/60 bg-ink-900">
+      <aside className="flex h-full w-[min(380px,calc(100vw-40px))] max-w-full shrink-0 flex-col border-l border-earth-gold/60 bg-ink-900 xl:w-full">
         <PanelHeader title={t('right.title')} onClose={onClose} closable={false} />
         <div className="flex-1 flex flex-col items-center justify-center px-5 text-center gap-2">
           <Info size={20} className="text-ink-500" />
@@ -130,8 +130,10 @@ export default function LocationPanel({ location, live, onClose }: Props) {
   };
 
   return (
-    <aside className="flex h-full w-[340px] shrink-0 flex-col overflow-y-auto border-l border-earth-gold/60 bg-ink-900">
-      <PanelHeader title={t('right.title')} onClose={onClose} closable />
+    <aside className="flex h-full w-[min(380px,calc(100vw-40px))] max-w-full shrink-0 flex-col overflow-y-auto overscroll-contain border-l border-earth-gold/60 bg-ink-900 xl:w-full">
+      <div className="sticky top-0 z-10 shrink-0">
+        <PanelHeader title={t('right.title')} onClose={onClose} closable />
+      </div>
 
       <div className="px-3 py-2.5 border-b border-ink-700">
         <div className="flex items-start justify-between gap-2">
@@ -146,11 +148,6 @@ export default function LocationPanel({ location, live, onClose }: Props) {
         <p className="text-[11px] text-ink-300 mt-0.5">{merged.admin}</p>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {verificationBadge(merged.verification, t(`ver.${merged.verification}`))}
-          {merged.ndmiSimulated && (
-            <span className="px-1.5 py-px rounded-sm border border-risk-moderate/60 text-risk-moderate text-[10px] tracking-wide">
-              NDMI {t('layers.simulated')}
-            </span>
-          )}
         </div>
       </div>
 
@@ -191,7 +188,7 @@ export default function LocationPanel({ location, live, onClose }: Props) {
           label={t('right.ndmi')}
           value={
             merged.ndmi !== undefined
-              ? `${fmtNum(merged.ndmi, 2)} (${t('layers.simulated')})`
+            ? `${fmtNum(merged.ndmi, 2)}${merged.ndmiSimulated ? ` (${t('layers.simulated')})` : ''}`
               : t('right.notAvailable')
           }
           muted={merged.ndmi === undefined}
@@ -225,11 +222,10 @@ export default function LocationPanel({ location, live, onClose }: Props) {
       <div className="px-3 py-2.5 border-b border-ink-700 grid grid-cols-2 gap-3">
         <div>
           <div className="text-[10px] text-ink-400 mb-1">{t('right.confidence')}</div>
-          <div className="h-1.5 bg-ink-700 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-forest-bright"
-              style={{ width: fmtPct(merged.confidence ?? 0) }}
-            />
+          <div className="h-1.5 overflow-hidden rounded-full bg-ink-700">
+            {merged.confidence !== undefined && (
+              <div className="h-full bg-forest-bright" style={{ width: fmtPct(merged.confidence) }} />
+            )}
           </div>
           <div className="font-mono text-[10px] text-ink-200 mt-1">
             {merged.confidence !== undefined ? fmtPct(merged.confidence) : t('right.notAvailable')}
@@ -237,8 +233,10 @@ export default function LocationPanel({ location, live, onClose }: Props) {
         </div>
         <div>
           <div className="text-[10px] text-ink-400 mb-1">{t('right.coverage')}</div>
-          <div className="h-1.5 bg-ink-700 rounded-full overflow-hidden">
-            <div className="h-full bg-teal-400" style={{ width: fmtPct(merged.coverage ?? 0) }} />
+          <div className="h-1.5 overflow-hidden rounded-full bg-ink-700">
+            {merged.coverage !== undefined && (
+              <div className="h-full bg-teal-400" style={{ width: fmtPct(merged.coverage) }} />
+            )}
           </div>
           <div className="font-mono text-[10px] text-ink-200 mt-1">
             {merged.coverage !== undefined ? fmtPct(merged.coverage) : t('right.notAvailable')}
@@ -302,14 +300,14 @@ export default function LocationPanel({ location, live, onClose }: Props) {
         <div className="text-[10px] uppercase tracking-wider text-ink-400">
           {t('right.logAssessment')}
         </div>
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-1.5">
           <input
             type="number"
             step="any"
             value={ecInput}
             onChange={(e) => setEcInput(e.target.value)}
             placeholder={t('right.ecInput')}
-            className="w-full px-2 py-1 text-[11px] font-mono bg-ink-900 border border-ink-600 rounded-sm text-ink-100 placeholder:text-ink-500 focus:outline-none focus:border-forest-bright"
+            className="min-w-0 w-full px-2 py-1 text-[11px] font-mono bg-ink-900 border border-ink-600 rounded-sm text-ink-100 placeholder:text-ink-500 focus:outline-none focus:border-forest-bright"
           />
           <input
             type="number"
@@ -317,7 +315,7 @@ export default function LocationPanel({ location, live, onClose }: Props) {
             value={wlInput}
             onChange={(e) => setWlInput(e.target.value)}
             placeholder={t('right.wlInput')}
-            className="w-full px-2 py-1 text-[11px] font-mono bg-ink-900 border border-ink-600 rounded-sm text-ink-100 placeholder:text-ink-500 focus:outline-none focus:border-forest-bright"
+            className="min-w-0 w-full px-2 py-1 text-[11px] font-mono bg-ink-900 border border-ink-600 rounded-sm text-ink-100 placeholder:text-ink-500 focus:outline-none focus:border-forest-bright"
           />
         </div>
         <textarea
@@ -330,7 +328,7 @@ export default function LocationPanel({ location, live, onClose }: Props) {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-sm border border-forest-light bg-forest-deep hover:bg-forest-base text-forest-pale text-[11px] font-medium transition-colors disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-sm border border-teal-500 bg-teal-850 hover:bg-teal-700 text-teal-300 text-[11px] font-medium transition-colors disabled:opacity-50"
         >
           <Send size={11} />
           <span>{t('right.submitAssessment')}</span>

@@ -17,6 +17,7 @@ import type { LiveState } from '@/hooks/useLiveData';
 import type { MonitoringLocation, TimelineEvent } from '@/types';
 import { ADAPTIVE_CANDIDATES, TIMELINE_EVENTS } from '@/data/demoData';
 import { fmtNum, fmtPct, localizedEvidenceLabel, localizedLocationName } from '@/lib/format';
+import { SourceLabel } from '@/components/PagePrimitives';
 
 type TabId = 'adaptive' | 'sensors' | 'reports' | 'timeline';
 
@@ -60,7 +61,7 @@ export default function BottomStrip({ live, selectedId, onSelectLocation }: Prop
             onClick={() => setTab(id)}
             className={`px-3 flex items-center gap-1.5 text-[11px] tracking-wide uppercase transition-colors border-r border-ink-700 whitespace-nowrap ${
               tab === id
-                ? 'bg-ink-850 text-forest-pale border-b-2 border-b-forest-bright -mb-px font-medium'
+                ? 'bg-ink-850 text-teal-300 border-b-2 border-b-teal-300 -mb-px font-medium'
                 : 'text-ink-400 hover:text-ink-200 hover:bg-ink-800/40'
             }`}
           >
@@ -269,9 +270,7 @@ function SensorTable({
                 <div className="flex items-center gap-1.5">
                   <span className="font-mono text-ink-100">{d.deviceId}</span>
                   {d.simulated && (
-                    <span className="px-1 py-px rounded-sm text-[9px] tracking-wider border border-risk-moderate/60 text-risk-moderate bg-risk-moderate/10">
-                      {t('sensor.simulated')}
-                    </span>
+                    <SourceLabel live={live.sensorsLive && d.dataOrigin === 'live'} simulated />
                   )}
                   <ChevronDown
                     size={10}
@@ -417,11 +416,11 @@ const KIND_ICONS: Record<TimelineEvent['kind'], React.ReactNode> = {
 };
 
 const KIND_COLORS: Record<TimelineEvent['kind'], string> = {
-  rainfall: '#4AA8A0',
-  sensor: '#D8C04A',
-  community: '#C9B48A',
-  assessment: '#5A9E78',
-  monitoring: '#A9805C',
+  rainfall: 'var(--color-ocean-medium)',
+  sensor: 'var(--color-risk-moderate)',
+  community: 'var(--color-earth-sand)',
+  assessment: 'var(--color-sage)',
+  monitoring: 'var(--color-earth-medium)',
 };
 
 function TimelinePanel({
@@ -472,7 +471,7 @@ function TimelinePanel({
             onClick={() => setFilter(k)}
             className={`px-2 py-0.5 rounded-sm text-[10px] border transition-colors ${
               filter === k
-                ? 'border-forest-bright text-forest-pale bg-forest-deep/60'
+                ? 'border-teal-500 text-teal-300 bg-teal-850'
                 : 'border-ink-700 text-ink-400 hover:text-ink-200 hover:border-ink-500'
             }`}
           >
@@ -503,7 +502,7 @@ function TimelinePanel({
                       <span className="text-ink-950">{KIND_ICONS[e.kind]}</span>
                     </span>
                     <span className="font-mono text-[9px] text-ink-400">
-                      {new Date(e.at).toLocaleString(lang === 'kn' ? 'kn-IN' : 'en-IN', {
+                      {new Date(e.at).toLocaleString(lang === 'kn' ? 'kn-IN' : lang === 'tul' ? 'tcy-IN' : 'en-IN', {
                         day: '2-digit',
                         month: 'short',
                         hour: '2-digit',

@@ -1,6 +1,6 @@
 // ── Domain types ─────────────────────────────────────────────────────
 
-export type Lang = 'en' | 'kn';
+export type Lang = 'en' | 'kn' | 'tul';
 
 export type VerificationStatus = 'authority' | 'community' | 'candidate' | 'pending';
 

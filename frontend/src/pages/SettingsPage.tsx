@@ -48,7 +48,7 @@ export default function SettingsPage({
                     onClick={() => onSetAutoRefreshMs(option.value)}
                     className={`rounded-sm border px-3 py-2 text-[10px] transition-colors ${
                       autoRefreshMs === option.value
-                        ? 'border-forest-bright bg-forest-deep/50 text-forest-pale'
+                        ? 'border-teal-500 bg-teal-850 text-teal-300'
                         : 'border-ink-700 bg-ink-950 text-ink-300 hover:border-ink-500'
                     }`}
                   >

@@ -24,7 +24,7 @@ function formatTimestamp(value: string | undefined, lang: string, t: (key: strin
   const date = new Date(value);
   return Number.isNaN(date.getTime())
     ? t('common.invalidTimestamp')
-    : date.toLocaleString(lang === 'kn' ? 'kn-IN' : 'en-IN', {
+    : date.toLocaleString(lang === 'kn' ? 'kn-IN' : lang === 'tul' ? 'tcy-IN' : 'en-IN', {
         day: '2-digit',
         month: 'short',
         year: 'numeric',
@@ -137,7 +137,9 @@ export default function SensorMonitoringPage({ live, onOpenLocation }: SensorMon
                             {sensor.deviceId}
                           </span>
                           <StatusBadge label={t(`sensor.${sensor.status}`)} kind={statusKind(sensor.status)} />
-                          <SourceLabel live={sourceIsLive} simulated={sensor.simulated} />
+                          {sensor.simulated && (
+                            <SourceLabel live={sourceIsLive} simulated />
+                          )}
                         </span>
                         <span className="mt-1 block truncate text-[11px] text-ink-300">{sensor.label}</span>
                         <span className="mt-1 block text-[10px] text-ink-500">{sensor.site}</span>

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { AlertTriangle, MapPin, PanelLeftOpen, PanelRightOpen, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { AlertTriangle, Layers, MapPin, PanelLeftOpen, PanelRightOpen, Search, X } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import type { LiveState } from '@/hooks/useLiveData';
 import type { MonitoringLocation } from '@/types';
@@ -10,7 +10,7 @@ import LocationPanel from '@/components/LocationPanel';
 import MapLegend from '@/components/MapLegend';
 import MapPanel, { type Basemap } from '@/components/MapPanel';
 import { localizedLocationName } from '@/lib/format';
-import { StatusBadge } from '@/components/PagePrimitives';
+import { SourceLabel } from '@/components/PagePrimitives';
 
 type MobileDrawer = 'right' | null;
 
@@ -53,6 +53,7 @@ export default function GeospatialExplorerPage({
   const [query, setQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
+  const [layersOpen, setLayersOpen] = useState(false);
 
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const matchingLocations = live.locations
@@ -72,19 +73,30 @@ export default function GeospatialExplorerPage({
 
   const selected = live.locations.find((location) => location.id === selectedId) ?? null;
 
+  useEffect(() => {
+    if (!layersOpen && !analyticsOpen && mobileDrawer !== 'right') return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setLayersOpen(false);
+      setAnalyticsOpen(false);
+      onSetMobileDrawer(null);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [analyticsOpen, layersOpen, mobileDrawer, onSetMobileDrawer]);
+
   return (
-    <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-ink-950">
-      <header className="relative z-[700] shrink-0 border-b border-white/[0.07] bg-ink-950/95 px-5 py-5 backdrop-blur-xl sm:px-7 lg:px-9">
+    <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-ink-950">
+      <header className="relative z-[700] shrink-0 border-b border-earth-gold/50 bg-ink-950 px-4 py-4 sm:px-7 sm:py-5 lg:px-9">
         <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
           <div className="min-w-0">
             <div className="mb-2 flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl font-semibold tracking-tight text-ink-100 sm:text-3xl">
+              <h1 className="text-2xl font-semibold tracking-tight text-earth-dark sm:text-3xl">
                 {t('page.groundwaterMap')}
               </h1>
-              <StatusBadge
-                label={t(live.locationsLive ? 'map.liveLocations' : 'map.demoLocations')}
-                kind={live.locationsLive ? 'live' : 'demo'}
-              />
+              <SourceLabel live={live.locationsLive} />
             </div>
             <p className="max-w-3xl text-sm leading-6 text-ink-400">
               {t('map.explorerSubtitle')}
@@ -95,7 +107,7 @@ export default function GeospatialExplorerPage({
             <label htmlFor="location-search" className="sr-only">
               {t('map.searchLocations')}
             </label>
-            <div className="flex items-center gap-3 rounded-xl border border-white/[0.1] bg-ink-900 px-4 py-3 focus-within:border-teal-400/40">
+            <div className="flex items-center gap-3 rounded-xl border border-ink-700 bg-ink-900 px-4 py-3 focus-within:border-teal-400/60">
               <Search size={16} className="shrink-0 text-teal-300" />
               <input
                 id="location-search"
@@ -132,7 +144,7 @@ export default function GeospatialExplorerPage({
                 <div
                   id="location-search-results"
                   role="listbox"
-                  className="absolute left-0 right-0 top-full z-[710] mt-2 max-h-72 overflow-y-auto rounded-xl border border-white/[0.1] bg-ink-850 shadow-2xl"
+                  className="absolute left-0 right-0 top-full z-[710] mt-2 max-h-72 overflow-y-auto rounded-xl border border-ink-700 bg-ink-850 shadow-xl"
                 >
                   {matchingLocations.length ? (
                     matchingLocations.map((location) => (
@@ -142,7 +154,7 @@ export default function GeospatialExplorerPage({
                         role="option"
                         aria-selected={selectedId === location.id}
                         onClick={() => handleLocationChoice(location)}
-                        className="flex w-full items-start gap-3 border-b border-white/[0.05] px-4 py-3 text-left last:border-b-0 hover:bg-ink-800/80"
+                        className="flex w-full items-start gap-3 border-b border-ink-700 px-4 py-3 text-left last:border-b-0 hover:bg-ink-800"
                       >
                         <MapPin size={15} className="mt-0.5 shrink-0 text-teal-300" />
                         <span className="min-w-0 flex-1">
@@ -176,7 +188,20 @@ export default function GeospatialExplorerPage({
         </div>
       </header>
 
-      <div className="relative flex min-h-0 flex-1">
+      <div className="relative flex min-h-0 min-w-0 flex-1">
+        <aside className="hidden min-h-0 w-[264px] shrink-0 border-r border-earth-gold/60 bg-ink-900 p-3 xl:flex">
+          <LayerControl
+            visibleLayers={visibleLayers}
+            onToggleVectorLayer={onToggleVectorLayer}
+            activeOverlay={activeOverlay}
+            onSelectOverlay={onSetActiveOverlay}
+            overlayOpacity={overlayOpacity}
+            onSetOverlayOpacity={onSetOverlayOpacity}
+            basemap={basemap}
+            onSetBasemap={onSetBasemap}
+          />
+        </aside>
+
         <section className="relative flex min-h-0 min-w-0 flex-1 flex-col">
           <div className="relative min-h-0 flex-1">
             <MapPanel
@@ -188,30 +213,31 @@ export default function GeospatialExplorerPage({
               selectedId={selectedId}
               onSelect={onSelectLocation}
             />
-            <LayerControl
-              visibleLayers={visibleLayers}
-              onToggleVectorLayer={onToggleVectorLayer}
-              activeOverlay={activeOverlay}
-              onSelectOverlay={onSetActiveOverlay}
-              overlayOpacity={overlayOpacity}
-              onSetOverlayOpacity={onSetOverlayOpacity}
-              basemap={basemap}
-              onSetBasemap={onSetBasemap}
-            />
             <MapLegend heatmapActive={activeOverlay === 'priority'} />
 
-            <div className="absolute bottom-3 right-3 z-[600] flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setLayersOpen(true)}
+              aria-label={t('map.layers')}
+              aria-expanded={layersOpen}
+              className="absolute left-3 top-3 z-[620] inline-flex items-center gap-2 rounded-xl border border-earth-gold/70 bg-ink-900/95 px-3 py-2.5 text-xs font-medium text-ink-200 shadow-lg transition-colors hover:border-teal-400 hover:text-teal-300 xl:hidden"
+            >
+              <Layers size={15} className="text-forest-base" />
+              <span>{t('map.layers')}</span>
+            </button>
+
+            <div className="absolute bottom-3 right-3 z-[620] flex max-w-[calc(100%-24px)] flex-wrap items-center justify-end gap-1.5">
               <button
                 type="button"
                 onClick={() => setAnalyticsOpen(true)}
-                className="flex items-center gap-2 rounded-xl border border-white/[0.1] bg-ink-900/95 px-4 py-2.5 text-xs text-ink-200 shadow-xl transition-colors hover:border-teal-400/40 hover:text-ink-100"
+                className="flex items-center gap-2 rounded-xl border border-earth-gold/70 bg-ink-900/95 px-3 py-2.5 text-xs text-ink-200 shadow-lg transition-colors hover:border-forest-light hover:text-ink-100 sm:px-4"
               >
-                <PanelLeftOpen size={15} className="text-teal-300" />
+                <PanelLeftOpen size={15} className="text-forest-base" />
                 <span>{t('map.monitoringSummary')}</span>
               </button>
               {!selected && (
-                <div className="inline-flex items-center gap-1.5 rounded-sm border border-ink-700 bg-ink-900/92 px-2.5 py-1.5 text-[10px] text-ink-400">
-                  <PanelRightOpen size={15} className="text-teal-300" />
+                <div className="hidden items-center gap-1.5 rounded-lg border border-earth-gold/70 bg-ink-900/95 px-2.5 py-2 text-[10px] text-ink-400 sm:inline-flex">
+                  <PanelRightOpen size={15} className="text-forest-base" />
                   <span>{t('map.selectLocation')}</span>
                 </div>
               )}
@@ -220,20 +246,67 @@ export default function GeospatialExplorerPage({
         </section>
 
         {rightOpen && selected && (
-          <div className="hidden h-full lg:flex">
+          <aside className="hidden min-h-0 w-[340px] shrink-0 border-l border-earth-gold/60 bg-ink-900 xl:block 2xl:w-[360px]">
             <LocationPanel location={selected} live={live} onClose={onCloseLocation} />
+          </aside>
+        )}
+
+        {layersOpen && (
+          <div className="fixed inset-0 z-[1150] flex xl:hidden">
+            <button
+              type="button"
+              aria-label={t('common.close')}
+              className="absolute inset-0 bg-black/55"
+              onClick={() => setLayersOpen(false)}
+            />
+            <aside
+              role="dialog"
+              aria-modal="true"
+              aria-label={t('map.layers')}
+              className="relative z-10 flex h-full w-[min(360px,calc(100vw-40px))] min-w-0 flex-col border-r border-earth-gold/60 bg-ink-900 p-3 shadow-2xl"
+            >
+              <div className="mb-3 flex shrink-0 items-center justify-between gap-3">
+                <h2 className="text-sm font-semibold text-earth-dark">{t('map.layers')}</h2>
+                <button
+                  type="button"
+                  onClick={() => setLayersOpen(false)}
+                  aria-label={t('common.close')}
+                  className="rounded-lg p-2 text-ink-400 transition-colors hover:bg-ink-800 hover:text-ink-100"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+              <div className="min-h-0 flex-1">
+                <LayerControl
+                  visibleLayers={visibleLayers}
+                  onToggleVectorLayer={onToggleVectorLayer}
+                  activeOverlay={activeOverlay}
+                  onSelectOverlay={onSetActiveOverlay}
+                  overlayOpacity={overlayOpacity}
+                  onSetOverlayOpacity={onSetOverlayOpacity}
+                  basemap={basemap}
+                  onSetBasemap={onSetBasemap}
+                />
+              </div>
+            </aside>
           </div>
         )}
 
         {mobileDrawer === 'right' && (
-          <div className="fixed inset-0 z-[1150] flex justify-end lg:hidden">
+          <div className="fixed inset-0 z-[1150] flex justify-end xl:hidden">
             <button
               type="button"
+              title={t('common.close')}
               aria-label={t('common.closeLocation')}
-              className="flex-1 bg-black/60"
+              className="absolute inset-0 bg-black/60"
               onClick={() => onSetMobileDrawer(null)}
             />
-            <div className="h-full shadow-2xl">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label={t('right.title')}
+              className="relative z-10 h-full max-w-full shadow-2xl"
+            >
               <LocationPanel
                 location={selected}
                 live={live}
@@ -245,15 +318,20 @@ export default function GeospatialExplorerPage({
 
         {analyticsOpen && (
           <div className="fixed inset-0 z-[1150] flex">
-            <div className="h-full shadow-2xl">
-              <AnalyticsPanel live={live} onCollapse={() => setAnalyticsOpen(false)} />
-            </div>
             <button
               type="button"
               aria-label={t('common.closeSummary')}
-              className="flex-1 bg-black/60"
+              className="absolute inset-0 bg-black/60"
               onClick={() => setAnalyticsOpen(false)}
             />
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label={t('map.monitoringSummary')}
+              className="relative z-10 h-full shadow-2xl"
+            >
+              <AnalyticsPanel live={live} onCollapse={() => setAnalyticsOpen(false)} />
+            </div>
           </div>
         )}
       </div>

@@ -22,7 +22,7 @@ export function PageHeader({
             {eyebrow}
           </div>
         )}
-        <h1 className="text-2xl font-semibold tracking-[-0.035em] text-ink-100 sm:text-3xl xl:text-[2.5rem]">
+        <h1 className="text-2xl font-semibold tracking-[-0.035em] text-earth-dark sm:text-3xl xl:text-[2.5rem]">
           {title}
         </h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-300">
@@ -58,7 +58,7 @@ export function PageCard({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               {Icon && <Icon size={17} strokeWidth={1.8} className="shrink-0 text-forest-bright" />}
-              <h2 className="text-sm font-semibold tracking-tight text-ink-100 sm:text-base">{title}</h2>
+              <h2 className="text-sm font-semibold tracking-tight text-earth-dark sm:text-base">{title}</h2>
             </div>
             {subtitle && (
               <p className="mt-1.5 text-xs leading-relaxed text-ink-400">{subtitle}</p>
@@ -167,5 +167,12 @@ export function SourceLabel({ live, simulated = false }: { live: boolean; simula
     : live
       ? t('source.live')
       : t('source.demoFallback');
-  return <StatusBadge label={label} kind={kind} />;
+  const dot = kind === 'live' ? 'bg-forest-base' : kind === 'mixed' ? 'bg-earth-sand' : 'bg-ink-500';
+
+  return (
+    <span className="inline-flex items-center gap-1.5 text-[10px] text-ink-500" title={label}>
+      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dot}`} />
+      <span>{label}</span>
+    </span>
+  );
 }

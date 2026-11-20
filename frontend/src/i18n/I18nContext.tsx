@@ -13,7 +13,8 @@ const LANGUAGE_STORAGE_KEY = 'saltline.language';
 
 function getStoredLanguage(): Lang {
   try {
-    return window.localStorage.getItem(LANGUAGE_STORAGE_KEY) === 'kn' ? 'kn' : 'en';
+    const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    return stored === 'kn' || stored === 'tul' ? stored : 'en';
   } catch {
     return 'en';
   }
@@ -60,4 +61,5 @@ export function useI18n(): I18nContextValue {
 export const LANGUAGES: { code: Lang; label: string; short: string }[] = [
   { code: 'en', label: 'English', short: 'EN' },
   { code: 'kn', label: 'ಕನ್ನಡ', short: 'ಕ' },
+  { code: 'tul', label: 'ತುಳು', short: 'ತು' },
 ];
