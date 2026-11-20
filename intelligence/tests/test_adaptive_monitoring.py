@@ -1,4 +1,3 @@
-
 import pytest
 
 from intelligence.adaptive_monitoring import (
