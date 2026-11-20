@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from backend.app.community_api import router as community_router
 from backend.app.assessment_api import router as assessment_router
 from intelligence.sensor_adapter import evaluate_sensor_reading
+from intelligence.validation.sensor_validation import validate_sensor_reading
 
 app = FastAPI(title="SALT-LINE API", version="0.2.0")
 app.include_router(community_router)
@@ -142,6 +143,7 @@ def receive_sensor_data(data: SensorReading):
     }
 
     validation = evaluate_sensor_reading(stored_reading)
+    data_quality = validate_sensor_reading(stored_reading)
 
     return {
         "success": True,
@@ -149,7 +151,8 @@ def receive_sensor_data(data: SensorReading):
         "reading_id": reading_id,
         "device_id": data.device_id,
         "received_at": received_at,
-        "validation": validation
+        "validation": validation,
+        "data_quality": data_quality
     }
 
 
@@ -177,6 +180,7 @@ def get_sensor_readings():
         )
 
         reading["validation"] = evaluate_sensor_reading(reading)
+        reading["data_quality"] = validate_sensor_reading(reading)
 
         readings.append(reading)
 
@@ -212,5 +216,6 @@ def get_sensor_reading(reading_id: int):
     )
 
     reading["validation"] = evaluate_sensor_reading(reading)
+    reading["data_quality"] = validate_sensor_reading(reading)
 
     return reading
