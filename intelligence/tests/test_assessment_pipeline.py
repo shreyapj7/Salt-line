@@ -152,3 +152,106 @@ def test_invalid_location_id_is_rejected():
 
     with pytest.raises(ValueError):
         assess_location(**inputs)
+
+def make_ec_measurement():
+    return {
+        "location_id": "LOC_001",
+        "value": 1200,
+        "unit": "uS/cm",
+        "source_type": "physical_sensor",
+        "timestamp": "2026-11-20T10:00:00+05:30",
+        "temperature_c": 25,
+        "calibration_status": "verified",
+    }
+
+
+def make_ec_history():
+    values = [790, 800, 810, 795, 805]
+
+    return [
+        {
+            "location_id": "LOC_001",
+            "season_key": "post_monsoon",
+            "ec25_uS_cm": value,
+            "source_type": "physical_sensor",
+            "calibration_status": "verified",
+            "timestamp": (
+                f"2025-11-{index + 1:02d}T10:00:00+05:30"
+            ),
+        }
+        for index, value in enumerate(values)
+    ]
+
+
+def test_pipeline_without_ec_remains_compatible():
+    result = assess_location(**complete_inputs())
+
+    assert result["salinity_evidence"]["assessment_status"] == (
+        "not_provided"
+    )
+
+    assert result["risk"]["score"] == 64.0
+
+
+def test_pipeline_integrates_ec_evidence():
+    inputs = complete_inputs()
+
+    result = assess_location(
+        **inputs,
+        ec_measurement=make_ec_measurement(),
+        ec_historical_observations=make_ec_history(),
+        ec_season_key="post_monsoon",
+    )
+
+    evidence = result["salinity_evidence"]
+
+    assert evidence["assessment_status"] == "assessed"
+    assert evidence["operationally_eligible"] is True
+    assert evidence["anomaly"]["direction"] == "increased"
+
+    # EC does not silently alter the existing risk formula.
+    assert result["risk"]["score"] == 64.0
+
+
+def test_pipeline_simulation_blocks_ec_conclusions():
+    inputs = complete_inputs()
+
+    result = assess_location(
+        **inputs,
+        is_simulated=True,
+        ec_measurement=make_ec_measurement(),
+        ec_historical_observations=make_ec_history(),
+        ec_season_key="post_monsoon",
+    )
+
+    evidence = result["salinity_evidence"]
+
+    assert result["assessment_mode"] == "simulated"
+    assert evidence["assessment_status"] == "simulated_only"
+    assert evidence["operationally_eligible"] is False
+
+
+def test_pipeline_ec_without_history_has_no_baseline():
+    inputs = complete_inputs()
+
+    result = assess_location(
+        **inputs,
+        ec_measurement=make_ec_measurement(),
+        ec_historical_observations=[],
+        ec_season_key="post_monsoon",
+    )
+
+    evidence = result["salinity_evidence"]
+
+    assert evidence["assessment_status"] == "baseline_unavailable"
+    assert evidence["anomaly"]["direction"] == "unknown"
+
+
+def test_pipeline_requires_ec_season_key():
+    inputs = complete_inputs()
+
+    with pytest.raises(ValueError):
+        assess_location(
+            **inputs,
+            ec_measurement=make_ec_measurement(),
+        )

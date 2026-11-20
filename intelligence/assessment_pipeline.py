@@ -1,4 +1,4 @@
-
+from intelligence.indicators.ec_assessment import assess_ec_evidence
 from typing import Optional
 
 from intelligence.risk_engine import calculate_risk
@@ -138,6 +138,10 @@ def assess_location(
     minimum_confidence_coverage: float = 0.60,
     minimum_monitoring_coverage: float = 0.70,
     is_simulated: bool = False,
+    ec_measurement: Optional[dict] = None,
+    ec_historical_observations: Optional[list[dict]] = None,
+    ec_season_key: Optional[str] = None,
+    ec_minimum_observations: int = 5,
 ) -> dict:
     """
     Run the complete SALT-LINE intelligence pipeline for one location.
@@ -227,6 +231,36 @@ def assess_location(
         is_simulated=is_simulated,
     )
 
+        # EC salinity evidence is maintained separately from the
+    # existing multidimensional risk score.
+
+    if ec_measurement is None:
+        salinity_evidence = {
+            "evidence_type": "electrical_conductivity",
+            "assessment_status": "not_provided",
+            "operationally_eligible": False,
+            "is_simulated": is_simulated,
+            "reason": "No EC measurement was supplied.",
+        }
+
+    else:
+        if ec_season_key is None:
+            raise ValueError(
+                "ec_season_key is required when ec_measurement is supplied"
+            )
+
+        salinity_evidence = assess_ec_evidence(
+            current_measurement=ec_measurement,
+            historical_observations=(
+                ec_historical_observations
+                if ec_historical_observations is not None
+                else []
+            ),
+            season_key=ec_season_key,
+            minimum_observations=ec_minimum_observations,
+            force_simulated=is_simulated,
+        )
+
     return {
         "location_id": location_id,
         "assessment_mode": (
@@ -236,4 +270,5 @@ def assess_location(
         "confidence": confidence,
         "monitoring": monitoring,
         "recommendation": recommendation,
+        "salinity_evidence": salinity_evidence,
     }
