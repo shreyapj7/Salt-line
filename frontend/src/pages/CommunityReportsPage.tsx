@@ -414,7 +414,7 @@ export default function CommunityReportsPage({ live, onOpenLocation }: Community
                   maxLength={100}
                   value={formContact}
                   onChange={(event) => setFormContact(event.target.value)}
-                  placeholder={t('complaints.contactPlaceholder)}
+                  placeholder={t('complaints.contactPlaceholder')}
                   className="mt-1.5 block w-full rounded-md border border-earth-gold bg-ink-950 px-3 py-2.5 text-sm text-ink-100 placeholder:text-ink-500"
                 />
                 <span className="mt-1 block text-[10px] leading-4 text-ink-500">{t('complaints.contactNote')}</span>
