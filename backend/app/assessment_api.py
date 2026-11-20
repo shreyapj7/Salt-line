@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
+from intelligence.explanation_engine import explain_assessment
 
 from backend.app.geospatial_loader import (
     get_location_context,
@@ -34,6 +35,7 @@ def location_context(location_id: str):
         raise HTTPException(status_code=404, detail=str(exc))
 
 
+
 @router.post("/assessments/{location_id}")
 def create_assessment(location_id: str, request: AssessmentRequest):
     try:
@@ -64,8 +66,20 @@ def create_assessment(location_id: str, request: AssessmentRequest):
     except (TypeError, ValueError) as exc:
         raise HTTPException(status_code=422, detail=str(exc))
 
+    # Generate explainable AI output
+    xai = explain_assessment(
+        risk_indicators=request.risk_indicators,
+        confidence_indicators=request.confidence_indicators,
+        monitoring_indicators=request.monitoring_indicators,
+        risk=result["risk"],
+        confidence=result["confidence"],
+        monitoring=result["monitoring"],
+        is_simulated=simulated,
+    )
+
     return {
         **result,
+        "xai": xai,
         "geospatial_context": context,
         "notice": "Scores are provisional prototype outputs, not validated groundwater diagnoses.",
     }
