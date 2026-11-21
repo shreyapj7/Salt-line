@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useI18n } from '@/i18n/I18nContext';
 import type { MonitoringLocation } from '@/types';
 import type { LiveState } from '@/hooks/useLiveData';
+import AssessmentExplainability from '@/components/AssessmentExplainability';
 import { fetchLocationContext, normalizeLocationContext } from '@/services/api';
 import {
   fmtNum,
@@ -70,7 +71,7 @@ export default function LocationPanel({ location, live, onClose }: Props) {
   const [wlInput, setWlInput] = useState('');
   const [notesInput, setNotesInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'none' | 'live' | 'local'>('none');
+  const [submitStatus, setSubmitStatus] = useState<'none' | 'live' | 'error'>('none');
 
   useEffect(() => {
     setSubmitStatus('none');
@@ -125,8 +126,7 @@ export default function LocationPanel({ location, live, onClose }: Props) {
       waterLevelM: Number.isFinite(wlVal) ? wlVal : undefined,
     });
     setSubmitting(false);
-    setSubmitStatus(res.live ? 'live' : 'local');
-    setNotesInput('');
+    setSubmitStatus(res.live ? 'live' : 'error');
   };
 
   return (
@@ -218,6 +218,8 @@ export default function LocationPanel({ location, live, onClose }: Props) {
         </div>
       )}
 
+      <AssessmentExplainability key={merged.id} locationId={merged.id} />
+
       {/* Confidence & evidence coverage */}
       <div className="px-3 py-2.5 border-b border-ink-700 grid grid-cols-2 gap-3">
         <div>
@@ -300,6 +302,7 @@ export default function LocationPanel({ location, live, onClose }: Props) {
         <div className="text-[10px] uppercase tracking-wider text-ink-400">
           {t('right.logAssessment')}
         </div>
+        <p className="text-[10px] leading-relaxed text-ink-400">{t('right.assessmentInputNotice')}</p>
         <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-1.5">
           <input
             type="number"
@@ -334,11 +337,9 @@ export default function LocationPanel({ location, live, onClose }: Props) {
           <span>{t('right.submitAssessment')}</span>
         </button>
         {submitStatus !== 'none' && (
-          <div className="flex items-center gap-1.5 text-[10px] text-forest-bright">
-            <CheckCircle2 size={11} />
-            <span>
-              {submitStatus === 'live' ? t('right.submittedLive') : t('right.submittedLocal')}
-            </span>
+          <div role="status" className={`flex items-center gap-1.5 text-[10px] ${submitStatus === 'live' ? 'text-forest-bright' : 'text-earth-sand'}`}>
+            {submitStatus === 'live' && <CheckCircle2 size={11} />}
+            <span>{submitStatus === 'live' ? t('right.submittedLive') : t('right.submissionFailed')}</span>
           </div>
         )}
       </form>

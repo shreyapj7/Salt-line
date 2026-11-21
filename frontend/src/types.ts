@@ -125,3 +125,58 @@ export interface AssessmentPayload {
   waterLevelM?: number;
   observer?: string;
 }
+
+export interface AssessmentRequest {
+  risk_indicators: Record<string, number | null>;
+  confidence_indicators: Record<string, number | null>;
+  monitoring_indicators: Record<string, number | null>;
+  minimum_risk_coverage?: number;
+  minimum_confidence_coverage?: number;
+  minimum_monitoring_coverage?: number;
+}
+
+export interface IndicatorContribution {
+  indicator?: string;
+  name?: string;
+  value?: number | null;
+  weight?: number | null;
+  contribution_points?: number | null;
+}
+
+export interface IndicatorExplanation {
+  score?: number | null;
+  status?: string | null;
+  coverage?: number | null;
+  contributions?: IndicatorContribution[] | null;
+  missing_inputs?: string[] | null;
+  explanation?: string | null;
+}
+
+export interface XAIResponse {
+  risk_explanation?: IndicatorExplanation | null;
+  confidence_explanation?: IndicatorExplanation | null;
+  monitoring_explanation?: IndicatorExplanation | null;
+  limitations?: string[] | null;
+  disclaimer?: string | null;
+}
+
+export interface AssessmentOutcome {
+  score?: number | null;
+  priority_score?: number | null;
+  status?: string | null;
+  coverage?: number | null;
+  missing_inputs?: string[] | null;
+  reasons?: string[] | null;
+}
+
+export interface AssessmentResponse {
+  location_id?: string;
+  assessment_mode?: string;
+  risk?: AssessmentOutcome | null;
+  confidence?: AssessmentOutcome | null;
+  monitoring?: AssessmentOutcome | null;
+  xai?: XAIResponse | null;
+  notice?: string | null;
+  recommendation?: Record<string, unknown> | null;
+  geospatial_context?: Record<string, unknown> | null;
+}

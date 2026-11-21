@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { AssessmentPayload, CommunityReport, MonitoringLocation, SensorDevice } from '@/types';
+import type {
+  AssessmentPayload,
+  AssessmentRequest,
+  CommunityReport,
+  MonitoringLocation,
+  SensorDevice,
+} from '@/types';
 import { COMMUNITY_REPORTS, LOCATIONS, SENSOR_DEVICES } from '@/data/demoData';
 import {
   fetchCommunityReports,
@@ -111,30 +117,16 @@ export function useLiveData(autoRefreshMs = 60000): LiveState {
   }, [autoRefreshMs, load]);
 
   const submitAssessment = useCallback(
-    async (locationId: string, payload: AssessmentPayload) => {
-      const res = await postAssessment(locationId, payload);
-      if (mountedRef.current) {
-        setState((prev) => ({
-          ...prev,
-          locations: prev.locations.map((loc) =>
-            loc.id === locationId
-              ? {
-                  ...loc,
-                  lastObservation: new Date().toISOString().slice(0, 10),
-                  gwHeadM: payload.waterLevelM ?? loc.gwHeadM,
-                  confidence: Math.min(0.95, (loc.confidence ?? 0.4) + 0.08),
-                  coverage: Math.min(0.95, (loc.coverage ?? 0.35) + 0.1),
-                }
-              : loc,
-          ),
-        }));
-      }
-      if (res.live) {
-        void load();
-      }
-      return { ok: true, live: res.live };
+    async (locationId: string, _payload: AssessmentPayload) => {
+      const request: AssessmentRequest = {
+        risk_indicators: { E: null, G: null, P: null, V: null, C: null },
+        confidence_indicators: { Q: null, F: null, C: null, S: null },
+        monitoring_indicators: { N: null, D: null, M: null },
+      };
+      const res = await postAssessment(locationId, request);
+      return { ok: res.live, live: res.live };
     },
-    [load],
+    [],
   );
 
   return { ...state, retry: () => void load(), submitAssessment };

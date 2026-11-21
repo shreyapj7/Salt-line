@@ -1,4 +1,14 @@
-import type { AssessmentPayload, CommunityReport, MonitoringLocation, SensorDevice } from '@/types';
+import type {
+  AssessmentRequest,
+  AssessmentResponse,
+  CommunityReport,
+  IndicatorContribution,
+  IndicatorExplanation,
+  MonitoringLocation,
+  SensorDevice,
+  XAIResponse,
+  AssessmentOutcome,
+} from '@/types';
 
 /**
  * FastAPI backend integration layer.
@@ -117,10 +127,100 @@ export async function postCommunityReport(
   }
 }
 
+function objectValue(value: unknown): Record<string, unknown> | null {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+function nullableNumber(value: unknown): number | null | undefined {
+  if (value === null) return null;
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+}
+
+function stringArray(value: unknown): string[] | undefined {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string')
+    ? value
+    : undefined;
+}
+
+function parseContribution(value: unknown): IndicatorContribution | null {
+  const item = objectValue(value);
+  if (!item) return null;
+  const indicator = typeof item.indicator === 'string' ? item.indicator : undefined;
+  const name = typeof item.name === 'string' ? item.name : undefined;
+  return {
+    indicator,
+    name,
+    value: nullableNumber(item.value),
+    weight: nullableNumber(item.weight),
+    contribution_points: nullableNumber(item.contribution_points),
+  };
+}
+
+function parseExplanation(value: unknown): IndicatorExplanation | null {
+  const item = objectValue(value);
+  if (!item) return null;
+  const contributions = Array.isArray(item.contributions)
+    ? item.contributions.map(parseContribution).filter(
+        (contribution): contribution is IndicatorContribution => contribution !== null,
+      )
+    : undefined;
+  return {
+    score: nullableNumber(item.score),
+    status: typeof item.status === 'string' ? item.status : undefined,
+    coverage: nullableNumber(item.coverage),
+    contributions,
+    missing_inputs: stringArray(item.missing_inputs),
+    explanation: typeof item.explanation === 'string' ? item.explanation : undefined,
+  };
+}
+
+function parseXai(value: unknown): XAIResponse | null {
+  const item = objectValue(value);
+  if (!item) return null;
+  return {
+    risk_explanation: parseExplanation(item.risk_explanation),
+    confidence_explanation: parseExplanation(item.confidence_explanation),
+    monitoring_explanation: parseExplanation(item.monitoring_explanation),
+    limitations: stringArray(item.limitations),
+    disclaimer: typeof item.disclaimer === 'string' ? item.disclaimer : undefined,
+  };
+}
+
+function parseOutcome(value: unknown): AssessmentOutcome | null {
+  const item = objectValue(value);
+  if (!item) return null;
+  return {
+    score: nullableNumber(item.score),
+    priority_score: nullableNumber(item.priority_score),
+    status: typeof item.status === 'string' ? item.status : undefined,
+    coverage: nullableNumber(item.coverage),
+    missing_inputs: stringArray(item.missing_inputs),
+    reasons: stringArray(item.reasons),
+  };
+}
+
+function parseAssessmentResponse(value: unknown): AssessmentResponse | null {
+  const item = objectValue(value);
+  if (!item) return null;
+  return {
+    location_id: typeof item.location_id === 'string' ? item.location_id : undefined,
+    assessment_mode: typeof item.assessment_mode === 'string' ? item.assessment_mode : undefined,
+    risk: parseOutcome(item.risk),
+    confidence: parseOutcome(item.confidence),
+    monitoring: parseOutcome(item.monitoring),
+    xai: parseXai(item.xai),
+    notice: typeof item.notice === 'string' ? item.notice : undefined,
+    recommendation: objectValue(item.recommendation) ?? undefined,
+    geospatial_context: objectValue(item.geospatial_context) ?? undefined,
+  };
+}
+
 export async function postAssessment(
   locationId: string,
-  body: AssessmentPayload,
-): Promise<ApiResult<unknown>> {
+  body: AssessmentRequest,
+): Promise<ApiResult<AssessmentResponse>> {
   const path = `/api/v1/assessments/${encodeURIComponent(locationId)}`;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 5000);
@@ -132,7 +232,9 @@ export async function postAssessment(
       body: JSON.stringify(body),
     });
     if (!res.ok) return errResult(httpError(path, res.status));
-    return { data: await res.json(), live: true, error: null };
+    const data = parseAssessmentResponse(await res.json());
+    if (!data) return errResult(`Invalid assessment response · ${path}`);
+    return { data, live: true, error: null };
   } catch {
     return errResult(networkError(path));
   } finally {
