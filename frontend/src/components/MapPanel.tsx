@@ -12,6 +12,7 @@ import {
   useMap,
 } from 'react-leaflet';
 import L from 'leaflet';
+import CgwbStationsLayer from './CgwbStationsLayer';
 import 'leaflet/dist/leaflet.css';
 import { Plus, Minus, Crosshair, AlertTriangle } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
@@ -357,6 +358,7 @@ export default function MapPanel({
           selected={selected}
           resetSignal={resetSignal}
         />
+        <CgwbStationsLayer />
         <MapSizeObserver />
         <ScaleBar />
         <CustomZoomControls
