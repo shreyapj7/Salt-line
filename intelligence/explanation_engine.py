@@ -52,6 +52,7 @@ def explain_weighted_score(
     weights: dict[str, float],
     names: dict[str, str],
     result: dict,
+    score_key: str = "score",
 ) -> dict:
     """Explain a weighted score without changing its calculation."""
 
@@ -91,7 +92,7 @@ def explain_weighted_score(
     )
 
     return {
-        "score": result.get("score"),
+        "score": result.get(score_key),
         "status": result.get("status"),
         "coverage": round(coverage, 4),
         "contributions": contributions,
@@ -142,6 +143,7 @@ def explain_assessment(
         MONITORING_WEIGHTS,
         MONITORING_NAMES,
         monitoring,
+        score_key="priority_score",
     )
 
     if is_simulated:

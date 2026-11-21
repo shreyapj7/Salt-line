@@ -2,6 +2,7 @@
 import pytest
 
 from intelligence.assessment_pipeline import assess_location
+from intelligence.explanation_engine import explain_assessment
 
 
 def complete_inputs():
@@ -136,6 +137,23 @@ def test_pipeline_derives_risk_factor_internally():
     # Risk score 64 becomes R = 0.64.
     # Monitoring coverage is 1.0 because R, N, D, and M are available.
     assert result["monitoring"]["coverage"] == 1.0
+
+
+def test_monitoring_explanation_uses_priority_score():
+    inputs = complete_inputs()
+    result = assess_location(**inputs)
+
+    explanations = explain_assessment(
+        risk_indicators=inputs["risk_indicators"],
+        confidence_indicators=inputs["confidence_indicators"],
+        monitoring_indicators=inputs["monitoring_indicators"],
+        risk=result["risk"],
+        confidence=result["confidence"],
+        monitoring=result["monitoring"],
+    )
+
+    assert result["monitoring"]["priority_score"] == 70.2
+    assert explanations["monitoring_explanation"]["score"] == 70.2
 
 
 def test_caller_cannot_override_risk_factor():
